@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Private Blog</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0d0d0d;
+  --surface:#141414;
+  --surface2:#1c1c1c;
+  --surface3:#242424;
+  --border:#2a2a2a;
+  --border2:#333;
+  --text:#e8e4dc;
+  --muted:#6b6760;
+  --accent:#c8a96e;
+  --accent2:#e8c98e;
+  --danger:#c0392b;
+  --success:#27ae60;
+  --info:#2980b9;
+  --paper:#f5f0e8;
+  --paper-text:#1a1208;
+}
+
+body{
+  font-family:'Jost',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+/* ═══════════════════════════════════
+   ANTI-COPY & PROTECTION
+═══════════════════════════════════ */
+.reader-body{
+  user-select:none;
+  -webkit-user-select:none;
+  pointer-events:auto;
+}
+.reader-body *{
+  user-select:none;
+  -webkit-user-select:none;
+}
+@media print{ body{ display:none !important; } }
+body.window-blurred .blur-protect{ filter:blur(12px); transition:filter 0.3s; }
+
+/* ═══════════════════════════════════
+   SCREENS
+═══════════════════════════════════ */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+
+/* ═══════════════════════════════════
+   LOGIN SCREEN
+═══════════════════════════════════ */
+#screen-login{
+  align-items:center;justify-content:center;
+  background:var(--bg);
+  background-image:radial-gradient(ellipse 60% 50% at 50% 0%, #1a1508 0%, transparent 70%);
+}
+.login-card{
+  width:100%;max-width:380px;
+  padding:48px 40px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  text-align:center;
+}
+.login-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:36px;
+  color:var(--accent);
+  letter-spacing:2px;
+  margin-bottom:4px;
+}
+.login-sub{
+  font-size:11px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:36px;
+}
+.inp{
+  width:100%;padding:11px 14px;
+  background:#0d0d0d;border:1px solid var(--border2);
+  color:var(--text);font-family:'Jost',sans-serif;font-size:14px;
+  outline:none;margin-bottom:10px;transition:border-color 0.2s;
+}
+.inp:focus{border-color:var(--accent);}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 24px;border:none;cursor:pointer;
+  font-family:'Jost',sans-serif;font-size:13px;font-weight:500;
+  letter-spacing:1px;text-transform:uppercase;transition:all 0.2s;
+}
+.btn-primary{background:var(--accent);color:#0d0d0d;}
+.btn-primary:hover{background:var(--accent2);}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{background:#a93226;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-success:hover{background:#219a52;}
+.btn-sm{padding:6px 14px;font-size:11px;}
+.btn-full{width:100%;justify-content:center;}
+.err{color:#e05050;font-size:12px;margin-top:6px;min-height:16px;text-align:left;}
+
+/* ═══════════════════════════════════
+   ADMIN SCREEN
+═══════════════════════════════════ */
+#screen-admin{flex-direction:row;align-items:stretch;}
+
+.sidebar{
+  width:240px;flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:28px 0;
+  min-height:100vh;position:sticky;top:0;height:100vh;
+}
+.sidebar-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;color:var(--accent);
+  padding:0 24px 28px;letter-spacing:1px;
+  border-bottom:1px solid var(--border);margin-bottom:16px;
+}
+.sidebar-logo span{display:block;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);font-family:'Jost',sans-serif;margin-top:2px;}
+.nav-item{
+  padding:11px 24px;cursor:pointer;
+  font-size:13px;letter-spacing:0.5px;color:var(--muted);
+  transition:all 0.15s;display:flex;align-items:center;gap:10px;
+  border-left:2px solid transparent;
+}
+.nav-item:hover{color:var(--text);background:var(--surface2);}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:var(--surface2);}
+.nav-icon{font-size:15px;width:18px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:16px 24px;border-top:1px solid var(--border);}
+
+.admin-content{
+  flex:1;padding:40px;overflow-y:auto;
+  background:var(--bg);
+}
+.page{display:none;}
+.page.active{display:block;}
+.page-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;color:var(--accent);
+  margin-bottom:4px;
+}
+.page-desc{font-size:12px;color:var(--muted);letter-spacing:0.5px;margin-bottom:32px;}
+.section-divider{border:none;border-top:1px solid var(--border);margin:28px 0;}
+
+/* Cards */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  padding:24px;margin-bottom:16px;
+}
+.card-row{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+
+/* Form */
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.inp-dark{
+  width:100%;padding:10px 14px;
+  background:var(--surface2);border:1px solid var(--border2);
+  color:var(--text);font-family:'Jost',sans-serif;font-size:14px;
+  outline:none;transition:border-color 0.2s;
+}
+.inp-dark:focus{border-color:var(--accent);}
+textarea.inp-dark{resize:vertical;min-height:160px;line-height:1.6;}
+
+/* Post list */
+.post-card{
+  background:var(--surface);border:1px solid var(--border);
+  padding:18px 22px;margin-bottom:10px;
+  display:flex;align-items:center;gap:16px;
+  transition:border-color 0.2s;
+}
+.post-card:hover{border-color:var(--border2);}
+.post-card-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;flex:1;
+}
+.post-card-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.post-card-actions{display:flex;gap:8px;flex-shrink:0;}
+
+/* Link list */
+.link-card{
+  background:var(--surface);border:1px solid var(--border);
+  padding:16px 20px;margin-bottom:8px;
+}
+.link-card.revoked{opacity:0.45;}
+.link-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.link-code{
+  font-family:'Courier New',monospace;font-size:12px;
+  color:var(--accent);background:var(--surface2);
+  padding:4px 10px;flex:1;word-break:break-all;
+  border:1px solid var(--border);
+}
+.badge{
+  display:inline-block;padding:3px 9px;font-size:10px;
+  letter-spacing:1px;text-transform:uppercase;font-weight:600;
+  flex-shrink:0;
+}
+.badge-active{background:#0d2010;color:#4caf50;border:1px solid #1a4020;}
+.badge-revoked{background:#200d0d;color:#e05050;border:1px solid #401010;}
+.badge-expired{background:#201a0d;color:#a09070;border:1px solid #3a3020;}
+.link-meta{font-size:12px;color:var(--muted);}
+.link-actions{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap;}
+.copy-btn{
+  background:var(--surface2);border:1px solid var(--border2);
+  color:var(--accent);padding:5px 12px;font-size:11px;
+  cursor:pointer;letter-spacing:1px;text-transform:uppercase;
+  transition:all 0.2s;font-family:'Jost',sans-serif;
+}
+.copy-btn:hover{background:var(--surface3);border-color:var(--accent);}
+
+/* Read tracking */
+.reads-panel{
+  background:var(--surface2);border:1px solid var(--border);
+  padding:14px 16px;margin-top:10px;
+}
+.reads-header{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.reads-count{
+  background:var(--accent);color:#0d0d0d;
+  font-size:10px;font-weight:700;padding:2px 7px;
+  border-radius:99px;
+}
+.read-entry{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 0;border-bottom:1px solid var(--border);
+  font-size:12px;
+}
+.read-entry:last-child{border-bottom:none;}
+.read-dot{width:6px;height:6px;background:var(--success);border-radius:50%;flex-shrink:0;}
+.read-time{color:var(--muted);font-size:11px;margin-left:auto;}
+.read-ip{color:var(--accent);font-family:monospace;}
+.read-duration{
+  font-size:10px;color:var(--muted);
+  background:var(--surface);padding:2px 6px;border:1px solid var(--border);
+}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px;}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  padding:20px;text-align:center;
+}
+.stat-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:42px;color:var(--accent);line-height:1;
+}
+.stat-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:6px;}
+
+/* Settings */
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 0;border-bottom:1px solid var(--border);
+}
+.setting-info h4{font-size:14px;font-weight:400;margin-bottom:3px;}
+.setting-info p{font-size:12px;color:var(--muted);}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:28px;right:28px;
+  background:var(--surface);border:1px solid var(--accent);
+  color:var(--accent);padding:12px 20px;
+  font-size:13px;letter-spacing:0.5px;
+  z-index:9999;opacity:0;transition:opacity 0.3s;
+  pointer-events:none;
+}
+#toast.show{opacity:1;}
+
+/* ═══════════════════════════════════
+   READER SCREEN
+═══════════════════════════════════ */
+#screen-reader{
+  background:var(--paper);
+  flex-direction:column;
+  align-items:center;
+  color:var(--paper-text);
+}
+
+.reader-bar{
+  width:100%;background:#1a1208;
+  padding:10px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  position:sticky;top:0;z-index:100;
+}
+.reader-bar-brand{
+  font-family:'Cormorant Garamond',serif;
+  color:var(--accent);font-size:18px;letter-spacing:1px;
+}
+.reader-bar-notice{
+  font-size:11px;color:#6b6358;letter-spacing:1px;text-transform:uppercase;
+}
+
+.reader-wrap{
+  width:100%;max-width:700px;
+  padding:64px 32px 100px;
+  flex:1;
+}
+
+.reader-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(32px,5vw,52px);
+  line-height:1.15;
+  margin-bottom:16px;
+  color:#1a1208;
+}
+.reader-date{
+  font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  color:#9a9080;margin-bottom:40px;
+  padding-bottom:24px;border-bottom:1px solid #d4cdb8;
+}
+.reader-content{
+  font-family:'Cormorant Garamond',serif;
+  font-size:20px;line-height:1.85;
+  color:#2a2010;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+/* Watermark overlay */
+#wm-overlay{
+  position:fixed;inset:0;pointer-events:none;z-index:9500;
+  overflow:hidden;
+}
+.wm-text{
+  position:absolute;
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;
+  color:rgba(181,64,26,0.06);
+  transform:rotate(-30deg);
+  white-space:nowrap;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  user-select:none;
+}
+
+/* Expired / revoked */
+#screen-blocked{
+  align-items:center;justify-content:center;
+  flex-direction:column;text-align:center;
+  background:#0d0d0d;
+  padding:40px;
+}
+.blocked-icon{font-size:64px;margin-bottom:24px;opacity:0.4;}
+.blocked-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:32px;color:var(--accent);margin-bottom:12px;
+}
+.blocked-msg{color:var(--muted);font-size:14px;max-width:360px;line-height:1.7;}
+
+/* Context menu blocker */
+#ctx-block{
+  position:fixed;inset:0;z-index:9800;
+  display:none;background:transparent;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);}
+
+/* Modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.85);
+  z-index:9000;display:none;align-items:center;justify-content:center;
+  padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--surface);border:1px solid var(--border2);
+  padding:32px;width:100%;max-width:500px;
+  max-height:90vh;overflow-y:auto;
+}
+.modal h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;color:var(--accent);margin-bottom:20px;
+}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+
+@media(max-width:640px){
+  .sidebar{display:none;}
+  .admin-content{padding:24px 16px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SCREEN: LOGIN ═══ -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">✦ Vault</div>
+    <div class="login-sub">Private Blog System</div>
+    <input class="inp" type="text" id="login-user" placeholder="Username" autocomplete="off">
+    <input class="inp" type="password" id="login-pass" placeholder="Password" autocomplete="off">
+    <div class="err" id="login-err"></div>
+    <br>
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Enter</button>
+  </div>
+</div>
+
+<!-- ═══ SCREEN: ADMIN ═══ -->
+<div id="screen-admin" class="screen">
+  <div class="sidebar">
+    <div class="sidebar-logo">✦ Vault <span>Admin Panel</span></div>
+    <div class="nav-item active" onclick="showPage('posts')" data-page="posts"><span class="nav-icon">📝</span> Posts</div>
+    <div class="nav-item" onclick="showPage('write')" data-page="write"><span class="nav-icon">✍️</span> Write Post</div>
+    <div class="nav-item" onclick="showPage('links')" data-page="links"><span class="nav-icon">🔗</span> Manage Links</div>
+    <div class="nav-item" onclick="showPage('reads')" data-page="reads"><span class="nav-icon">👁️</span> Read Tracker</div>
+    <div class="nav-item" onclick="showPage('settings')" data-page="settings"><span class="nav-icon">⚙️</span> Settings</div>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-full btn-sm" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+  <div class="admin-content">
+
+    <!-- POSTS PAGE -->
+    <div class="page active" id="page-posts">
+      <div class="page-title">Posts</div>
+      <div class="page-desc">All your private blog posts</div>
+      <div id="posts-list"></div>
+      <div id="posts-empty" style="text-align:center;padding:60px 0;color:var(--muted);display:none;">
+        <div style="font-size:40px;margin-bottom:16px;">📄</div>
+        <div>No posts yet. <span style="color:var(--accent);cursor:pointer;" onclick="showPage('write')">Write one →</span></div>
+      </div>
+    </div>
+
+    <!-- WRITE PAGE -->
+    <div class="page" id="page-write">
+      <div class="page-title" id="write-title">Write New Post</div>
+      <div class="page-desc">Create a private post and generate shareable links</div>
+      <input type="hidden" id="edit-id" value="">
+      <div class="field"><label>Post Title</label><input class="inp-dark" type="text" id="post-title" placeholder="Enter a title..."></div>
+      <div class="field"><label>Content</label><textarea class="inp-dark" id="post-body" placeholder="Write your post content here..."></textarea></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="savePost()">Save Post</button>
+        <button class="btn btn-ghost" onclick="cancelEdit()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- LINKS PAGE -->
+    <div class="page" id="page-links">
+      <div class="page-title">Manage Links</div>
+      <div class="page-desc">Generate, share, and revoke access links</div>
+      <div class="card">
+        <div class="card-row" style="align-items:flex-end;">
+          <div class="field" style="flex:1;margin-bottom:0;">
+            <label>Select Post</label>
+            <select class="inp-dark" id="link-post-select"></select>
+          </div>
+          <div class="field" style="width:160px;margin-bottom:0;">
+            <label>Label (who)</label>
+            <input class="inp-dark" type="text" id="link-label" placeholder="e.g. Rahul">
+          </div>
+          <div class="field" style="width:160px;margin-bottom:0;">
+            <label>Expires (hrs, 0=never)</label>
+            <input class="inp-dark" type="number" id="link-expires" value="0" min="0">
+          </div>
+          <button class="btn btn-primary" onclick="generateLink()" style="flex-shrink:0;">Generate Link</button>
+        </div>
+      </div>
+      <div id="links-list"></div>
+      <div id="links-empty" style="text-align:center;padding:40px 0;color:var(--muted);display:none;">
+        <div style="font-size:32px;margin-bottom:12px;">🔗</div>
+        <div>No links yet. Generate one above.</div>
+      </div>
+    </div>
+
+    <!-- READ TRACKER PAGE -->
+    <div class="page" id="page-reads">
+      <div class="page-title">Read Tracker</div>
+      <div class="page-desc">See exactly who opened what and when — each link = one person</div>
+
+      <div class="stats-grid" id="tracker-stats"></div>
+
+      <div id="reads-by-link"></div>
+      <div id="reads-empty" style="text-align:center;padding:60px 0;color:var(--muted);display:none;">
+        <div style="font-size:40px;margin-bottom:16px;">👁️</div>
+        <div>No reads recorded yet.</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div class="page" id="page-settings">
+      <div class="page-title">Settings</div>
+      <div class="page-desc">Configure your blog</div>
+
+      <div class="card">
+        <h4 style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Change Password</h4>
+        <div class="field"><label>New Username</label><input class="inp-dark" type="text" id="s-user" placeholder="Leave blank to keep current"></div>
+        <div class="field"><label>New Password</label><input class="inp-dark" type="password" id="s-pass" placeholder="Leave blank to keep current"></div>
+        <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h4 style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Blog Identity</h4>
+        <div class="field"><label>Blog Name</label><input class="inp-dark" type="text" id="s-blogname" placeholder="My Private Blog"></div>
+        <button class="btn btn-primary" onclick="saveBlogName()">Save</button>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h4 style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:4px;">⚠️ Danger Zone</h4>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">Irreversible actions</p>
+        <button class="btn btn-danger btn-sm" onclick="clearAllData()">Clear All Data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN: READER ═══ -->
+<div id="screen-reader" class="screen">
+  <div id="wm-overlay"></div>
+  <div id="ctx-block"></div>
+  <div class="reader-bar">
+    <div class="reader-bar-brand" id="reader-brand">✦ Vault</div>
+    <div class="reader-bar-notice">🔒 Protected Content</div>
+  </div>
+  <div class="reader-wrap blur-protect">
+    <div class="reader-title" id="reader-title"></div>
+    <div class="reader-date" id="reader-date"></div>
+    <div class="reader-content" id="reader-content"></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN: BLOCKED ═══ -->
+<div id="screen-blocked" class="screen">
+  <div class="blocked-icon">🚫</div>
+  <div class="blocked-title" id="blocked-title">Access Denied</div>
+  <div class="blocked-msg" id="blocked-msg">This link is no longer valid.</div>
+</div>
+
+<!-- Modal for link generated -->
+<div class="modal-overlay" id="modal-link">
+  <div class="modal">
+    <h3>🔗 Link Generated</h3>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Share this link. Once you delete it, the viewer loses access.</p>
+    <div style="background:var(--surface2);border:1px solid var(--border2);padding:14px;word-break:break-all;font-family:monospace;font-size:13px;color:var(--accent);" id="modal-link-url"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="copyModalLink()">Copy Link</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-link')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════
+//  DATA LAYER (localStorage)
+// ═══════════════════════════════════
+const DB = {
+  get(k,def=null){ try{ const v=localStorage.getItem(k); return v!==null?JSON.parse(v):def; }catch(e){return def;} },
+  set(k,v){ localStorage.setItem(k,JSON.stringify(v)); },
+  init(){
+    if(!DB.get('creds')) DB.set('creds',{user:'admin',pass:'admin123'});
+    if(!DB.get('posts')) DB.set('posts',[]);
+    if(!DB.get('links')) DB.set('links',[]);
+    if(!DB.get('reads')) DB.set('reads',[]); // {linkId, ts, ip(fake), duration}
+    if(!DB.get('blogname')) DB.set('blogname','Vault');
+  }
+};
+
+function getPosts(){ return DB.get('posts',[]); }
+function getLinks(){ return DB.get('links',[]); }
+function getReads(){ return DB.get('reads',[]); }
+function savePosts(d){ DB.set('posts',d); }
+function saveLinks(d){ DB.set('links',d); }
+function saveReads(d){ DB.set('reads',d); }
+
+// ═══════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════
+function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+function now(){ return Date.now(); }
+function fmtDate(ts){
+  const d=new Date(ts);
+  return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})+' '+
+         d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+function timeAgo(ts){
+  const s=Math.floor((now()-ts)/1000);
+  if(s<60) return s+'s ago';
+  const m=Math.floor(s/60); if(m<60) return m+'m ago';
+  const h=Math.floor(m/60); if(h<24) return h+'h ago';
+  return Math.floor(h/24)+'d ago';
+}
+// Fake IP for demo (tracks unique sessions via sessionStorage key)
+function getSessionId(){
+  let id=sessionStorage.getItem('_vid');
+  if(!id){ id='v_'+Math.random().toString(36).slice(2,8); sessionStorage.setItem('_vid',id); }
+  return id;
+}
+
+function toast(msg,dur=2500){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.classList.toggle('active', n.dataset.page===id);
+  });
+  if(id==='posts') renderPosts();
+  if(id==='links') renderLinks();
+  if(id==='reads') renderReads();
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  const creds=DB.get('creds');
+  if(u===creds.user && p===creds.pass){
+    document.getElementById('login-err').textContent='';
+    showScreen('admin');
+    renderPosts();
+    updateBlogName();
+  } else {
+    document.getElementById('login-err').textContent='Invalid credentials.';
+  }
+}
+document.getElementById('login-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+function doLogout(){ showScreen('login'); }
+
+// ═══════════════════════════════════
+//  POSTS
+// ═══════════════════════════════════
+function savePost(){
+  const title=document.getElementById('post-title').value.trim();
+  const body=document.getElementById('post-body').value.trim();
+  const editId=document.getElementById('edit-id').value;
+  if(!title||!body){ toast('Please fill title and content.'); return; }
+  const posts=getPosts();
+  if(editId){
+    const idx=posts.findIndex(p=>p.id===editId);
+    if(idx>-1){ posts[idx].title=title; posts[idx].body=body; posts[idx].updatedAt=now(); }
+    document.getElementById('edit-id').value='';
+    document.getElementById('write-title').textContent='Write New Post';
+  } else {
+    posts.unshift({id:uid(),title,body,createdAt:now(),updatedAt:now()});
+  }
+  savePosts(posts);
+  document.getElementById('post-title').value='';
+  document.getElementById('post-body').value='';
+  toast('Post saved ✓');
+  showPage('posts');
+}
+function editPost(id){
+  const post=getPosts().find(p=>p.id===id);
+  if(!post) return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('post-title').value=post.title;
+  document.getElementById('post-body').value=post.body;
+  document.getElementById('write-title').textContent='Edit Post';
+  showPage('write');
+}
+function cancelEdit(){
+  document.getElementById('edit-id').value='';
+  document.getElementById('post-title').value='';
+  document.getElementById('post-body').value='';
+  document.getElementById('write-title').textContent='Write New Post';
+  showPage('posts');
+}
+function deletePost(id){
+  if(!confirm('Delete this post? All its links will also be revoked.')) return;
+  savePosts(getPosts().filter(p=>p.id!==id));
+  // Revoke all links for this post
+  saveLinks(getLinks().map(l=>l.postId===id?{...l,revoked:true}:l));
+  renderPosts();
+  toast('Post deleted.');
+}
+function renderPosts(){
+  const posts=getPosts();
+  const el=document.getElementById('posts-list');
+  const empty=document.getElementById('posts-empty');
+  if(!posts.length){ el.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  const links=getLinks();
+  el.innerHTML=posts.map(p=>{
+    const lcount=links.filter(l=>l.postId===p.id&&!l.revoked).length;
+    const reads=getReads().filter(r=>links.find(l=>l.id===r.linkId&&l.postId===p.id));
+    return `<div class="post-card">
+      <div style="flex:1">
+        <div class="post-card-title">${esc(p.title)}</div>
+        <div class="post-card-meta">${fmtDate(p.createdAt)} &nbsp;·&nbsp; ${lcount} active link${lcount!==1?'s':''} &nbsp;·&nbsp; ${reads.length} read${reads.length!==1?'s':''}</div>
+      </div>
+      <div class="post-card-actions">
+        <button class="btn btn-ghost btn-sm" onclick="showPage('links');populateLinkSelect('${p.id}')">Links</button>
+        <button class="btn btn-ghost btn-sm" onclick="editPost('${p.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePost('${p.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════
+//  LINKS
+// ═══════════════════════════════════
+let _lastGeneratedLink='';
+function populateLinkSelect(selectId){
+  const sel=document.getElementById('link-post-select');
+  const posts=getPosts();
+  sel.innerHTML=posts.map(p=>`<option value="${p.id}" ${p.id===selectId?'selected':''}>${esc(p.title)}</option>`).join('');
+}
+function generateLink(){
+  const postId=document.getElementById('link-post-select').value;
+  const label=document.getElementById('link-label').value.trim()||'Unnamed';
+  const expHrs=parseFloat(document.getElementById('link-expires').value)||0;
+  if(!postId){ toast('Select a post first.'); return; }
+  const links=getLinks();
+  const id=uid();
+  const expiresAt=expHrs>0?now()+expHrs*3600000:0;
+  links.unshift({id,postId,label,createdAt:now(),expiresAt,revoked:false});
+  saveLinks(links);
+  const baseUrl=window.location.href.split('?')[0].split('#')[0];
+  const url=baseUrl+'?v='+id;
+  _lastGeneratedLink=url;
+  document.getElementById('modal-link-url').textContent=url;
+  document.getElementById('modal-link').classList.add('open');
+  renderLinks();
+}
+function copyModalLink(){
+  navigator.clipboard.writeText(_lastGeneratedLink).then(()=>toast('Link copied ✓'));
+}
+function copyLink(url){
+  navigator.clipboard.writeText(url).then(()=>toast('Copied ✓'));
+}
+function revokeLink(id){
+  if(!confirm('Revoke this link? The viewer will lose access immediately.')) return;
+  saveLinks(getLinks().map(l=>l.id===id?{...l,revoked:true}:l));
+  renderLinks();
+  toast('Link revoked.');
+}
+function restoreLink(id){
+  saveLinks(getLinks().map(l=>l.id===id?{...l,revoked:false}:l));
+  renderLinks();
+  toast('Link restored.');
+}
+function deleteLink(id){
+  if(!confirm('Permanently delete this link and its read history?')) return;
+  saveLinks(getLinks().filter(l=>l.id!==id));
+  saveReads(getReads().filter(r=>r.linkId!==id));
+  renderLinks();
+  toast('Link deleted.');
+}
+function getLinkStatus(l){
+  if(l.revoked) return 'revoked';
+  if(l.expiresAt && now()>l.expiresAt) return 'expired';
+  return 'active';
+}
+function renderLinks(){
+  populateLinkSelect(null);
+  const links=getLinks();
+  const el=document.getElementById('links-list');
+  const empty=document.getElementById('links-empty');
+  const posts=getPosts();
+  const reads=getReads();
+  if(!links.length){ el.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  const baseUrl=window.location.href.split('?')[0].split('#')[0];
+  el.innerHTML=links.map(l=>{
+    const status=getLinkStatus(l);
+    const post=posts.find(p=>p.id===l.postId);
+    const url=baseUrl+'?v='+l.id;
+    const lreads=reads.filter(r=>r.linkId===l.id);
+    const badgeClass={'active':'badge-active','revoked':'badge-revoked','expired':'badge-expired'}[status];
+    const expLabel=l.expiresAt?`Expires ${fmtDate(l.expiresAt)}`:'Never expires';
+    return `<div class="link-card ${status==='revoked'?'revoked':''}">
+      <div class="link-top">
+        <span style="font-size:13px;font-weight:500;color:var(--text);">👤 ${esc(l.label)}</span>
+        <span class="badge ${badgeClass}">${status}</span>
+        <span style="font-size:11px;color:var(--muted);">${post?esc(post.title):'[deleted]'}</span>
+      </div>
+      <div class="link-code">${url}</div>
+      <div class="link-meta">${fmtDate(l.createdAt)} &nbsp;·&nbsp; ${expLabel} &nbsp;·&nbsp; <strong style="color:${lreads.length?'var(--success)':'var(--muted)'}">${lreads.length} read${lreads.length!==1?'s':''}</strong></div>
+      <div class="link-actions">
+        <button class="copy-btn" onclick="copyLink('${url}')">Copy Link</button>
+        ${status==='active'?`<button class="btn btn-danger btn-sm" onclick="revokeLink('${l.id}')">Revoke</button>`:''}
+        ${status==='revoked'?`<button class="btn btn-success btn-sm" onclick="restoreLink('${l.id}')">Restore</button>`:''}
+        <button class="btn btn-ghost btn-sm" onclick="deleteLink('${l.id}')">Delete</button>
+        ${lreads.length?`<button class="btn btn-ghost btn-sm" onclick="toggleReadsPanel('reads-panel-${l.id}')">👁 View Reads</button>`:''}
+      </div>
+      ${lreads.length?`
+      <div class="reads-panel" id="reads-panel-${l.id}" style="display:none;">
+        <div class="reads-header">Read History <span class="reads-count">${lreads.length}</span></div>
+        ${lreads.map(r=>`
+        <div class="read-entry">
+          <div class="read-dot"></div>
+          <span class="read-ip">${r.session}</span>
+          <span style="color:var(--muted);font-size:11px;">${r.device||'Unknown'}</span>
+          ${r.duration?`<span class="read-duration">${r.duration}s on page</span>`:''}
+          <span class="read-time">${timeAgo(r.ts)}</span>
+        </div>`).join('')}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+function toggleReadsPanel(id){
+  const el=document.getElementById(id);
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+
+// ═══════════════════════════════════
+//  READ TRACKER PAGE
+// ═══════════════════════════════════
+function renderReads(){
+  const reads=getReads();
+  const links=getLinks();
+  const posts=getPosts();
+  const el=document.getElementById('reads-by-link');
+  const empty=document.getElementById('reads-empty');
+  const statsEl=document.getElementById('tracker-stats');
+
+  // Stats
+  const totalReads=reads.length;
+  const uniqueLinks=new Set(reads.map(r=>r.linkId)).size;
+  const todayReads=reads.filter(r=>now()-r.ts<86400000).length;
+  const activeLinks=links.filter(l=>getLinkStatus(l)==='active').length;
+  statsEl.innerHTML=`
+    <div class="stat-card"><div class="stat-num">${totalReads}</div><div class="stat-label">Total Reads</div></div>
+    <div class="stat-card"><div class="stat-num">${uniqueLinks}</div><div class="stat-label">Links Read</div></div>
+    <div class="stat-card"><div class="stat-num">${todayReads}</div><div class="stat-label">Today</div></div>
+    <div class="stat-card"><div class="stat-num">${activeLinks}</div><div class="stat-label">Active Links</div></div>
+  `;
+
+  if(!reads.length){ el.innerHTML=''; empty.style.display='block'; statsEl.style.display='none'; return; }
+  empty.style.display='none'; statsEl.style.display='grid';
+
+  // Group reads by link
+  const grouped={};
+  reads.forEach(r=>{
+    if(!grouped[r.linkId]) grouped[r.linkId]=[];
+    grouped[r.linkId].push(r);
+  });
+
+  let html='';
+  Object.entries(grouped).sort((a,b)=>b[1][b[1].length-1].ts-a[1][a[1].length-1].ts).forEach(([lid,lreads])=>{
+    const link=links.find(l=>l.id===lid);
+    const post=link?posts.find(p=>p.id===link.postId):null;
+    const label=link?link.label:'Unknown Recipient';
+    const postTitle=post?post.title:'[Deleted Post]';
+    const status=link?getLinkStatus(link):'deleted';
+    html+=`<div class="link-card" style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <span style="font-size:15px;font-weight:500;color:var(--text);">👤 ${esc(label)}</span>
+        <span class="badge ${status==='active'?'badge-active':status==='revoked'?'badge-revoked':'badge-expired'}">${status}</span>
+        <span style="font-size:12px;color:var(--muted);">Post: ${esc(postTitle)}</span>
+        <span style="font-size:12px;color:var(--accent);margin-left:auto;">${lreads.length} open${lreads.length!==1?'s':''}</span>
+      </div>
+      <div class="reads-panel" style="display:block;">
+        <div class="reads-header">All Opens</div>
+        ${lreads.slice().reverse().map(r=>`
+        <div class="read-entry">
+          <div class="read-dot"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span class="read-ip">${r.session}</span>
+              <span style="color:var(--muted);font-size:11px;">${r.device||'Unknown device'}</span>
+              ${r.duration?`<span class="read-duration">${r.duration}s read time</span>`:''}
+            </div>
+          </div>
+          <span class="read-time" title="${fmtDate(r.ts)}">${timeAgo(r.ts)}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════
+function saveSettings(){
+  const u=document.getElementById('s-user').value.trim();
+  const p=document.getElementById('s-pass').value;
+  const creds=DB.get('creds');
+  if(u) creds.user=u;
+  if(p) creds.pass=p;
+  DB.set('creds',creds);
+  toast('Settings saved ✓');
+}
+function saveBlogName(){
+  const n=document.getElementById('s-blogname').value.trim();
+  if(n){ DB.set('blogname',n); updateBlogName(); toast('Blog name saved ✓'); }
+}
+function updateBlogName(){
+  const n=DB.get('blogname','Vault');
+  document.getElementById('reader-brand').textContent='✦ '+n;
+  document.querySelector('.sidebar-logo').innerHTML=`✦ ${n} <span>Admin Panel</span>`;
+}
+function clearAllData(){
+  if(!confirm('Delete ALL posts, links, and read history? This cannot be undone.')) return;
+  DB.set('posts',[]); DB.set('links',[]); DB.set('reads',[]);
+  toast('All data cleared.');
+}
+function esc(s){ const d=document.createElement('div');d.textContent=s;return d.innerHTML; }
+
+// ═══════════════════════════════════
+//  READER — PROTECTION
+// ═══════════════════════════════════
+// Block right-click
+document.addEventListener('contextmenu',e=>{
+  if(document.getElementById('screen-reader').classList.contains('active')) e.preventDefault();
+});
+// Block common copy shortcuts
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('screen-reader').classList.contains('active')) return;
+  const blocked=['c','x','a','s','p','u'];
+  if((e.ctrlKey||e.metaKey) && blocked.includes(e.key.toLowerCase())) e.preventDefault();
+  if(e.key==='F12'||e.key==='PrintScreen') e.preventDefault();
+});
+// Blur on window focus loss
+window.addEventListener('blur',()=>{ document.body.classList.add('window-blurred'); });
+window.addEventListener('focus',()=>{ document.body.classList.remove('window-blurred'); });
+// Block drag
+document.addEventListener('dragstart',e=>{
+  if(document.getElementById('screen-reader').classList.contains('active')) e.preventDefault();
+});
+
+// Watermark tiles
+function buildWatermark(token){
+  const wm=document.getElementById('wm-overlay');
+  wm.innerHTML='';
+  const text='🔒 '+token+' · PRIVATE';
+  for(let y=0;y<window.innerHeight+200;y+=80){
+    for(let x=-100;x<window.innerWidth+200;x+=280){
+      const el=document.createElement('div');
+      el.className='wm-text';
+      el.textContent=text;
+      el.style.left=x+'px';
+      el.style.top=y+'px';
+      wm.appendChild(el);
+    }
+  }
+}
+
+// Read duration tracking
+let _readStart=0;
+let _readInterval=null;
+let _currentReadId=null;
+function startReadTimer(linkId){
+  _readStart=now();
+  _currentReadId=linkId;
+  _readInterval=setInterval(()=>{
+    const dur=Math.floor((now()-_readStart)/1000);
+    // update the existing read entry's duration
+    const reads=getReads();
+    const entry=reads.find(r=>r.linkId===linkId&&r.session===getSessionId()&&!r.duration);
+    if(entry){ entry.duration=dur; saveReads(reads); }
+  },10000);
+}
+window.addEventListener('beforeunload',()=>{
+  if(_currentReadId){
+    const dur=Math.floor((now()-_readStart)/1000);
+    const reads=getReads();
+    const entry=reads.find(r=>r.linkId===_currentReadId&&r.session===getSessionId());
+    if(entry){ entry.duration=dur; saveReads(reads); }
+  }
+  if(_readInterval) clearInterval(_readInterval);
+});
+
+// ═══════════════════════════════════
+//  ROUTER — check URL for ?v=
+// ═══════════════════════════════════
+function getDeviceInfo(){
+  const ua=navigator.userAgent;
+  if(/mobile/i.test(ua)) return 'Mobile';
+  if(/tablet|ipad/i.test(ua)) return 'Tablet';
+  return 'Desktop';
+}
+
+function route(){
+  DB.init();
+  const params=new URLSearchParams(window.location.search);
+  const vid=params.get('v');
+  if(!vid){
+    // Admin mode
+    showScreen('login');
+    return;
+  }
+  // Reader mode
+  const links=getLinks();
+  const link=links.find(l=>l.id===vid);
+  if(!link){
+    showScreen('blocked');
+    document.getElementById('blocked-title').textContent='Link Not Found';
+    document.getElementById('blocked-msg').textContent='This link does not exist or has been deleted by the author.';
+    return;
+  }
+  if(link.revoked){
+    showScreen('blocked');
+    document.getElementById('blocked-title').textContent='Access Revoked';
+    document.getElementById('blocked-msg').textContent='The author has revoked access to this content.';
+    return;
+  }
+  if(link.expiresAt && now()>link.expiresAt){
+    showScreen('blocked');
+    document.getElementById('blocked-title').textContent='Link Expired';
+    document.getElementById('blocked-msg').textContent='This link has expired. Contact the author for a new one.';
+    return;
+  }
+  const post=getPosts().find(p=>p.id===link.postId);
+  if(!post){
+    showScreen('blocked');
+    document.getElementById('blocked-title').textContent='Content Removed';
+    document.getElementById('blocked-msg').textContent='The author has removed this post.';
+    return;
+  }
+
+  // Record read
+  const session=getSessionId();
+  const device=getDeviceInfo();
+  const reads=getReads();
+  reads.push({linkId:vid, session, device, ts:now(), duration:0});
+  saveReads(reads);
+
+  // Render reader
+  showScreen('reader');
+  document.getElementById('reader-title').textContent=post.title;
+  document.getElementById('reader-date').textContent=
+    new Date(post.createdAt).toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('reader-content').textContent=post.body;
+  updateBlogName();
+  buildWatermark(link.label);
+  startReadTimer(vid);
+}
+
+route();
+</script>
+</body>
+</html>

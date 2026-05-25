@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CLASSIFIED // ACCESS RESTRICTED</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --red: #ff0033;
+      --gold: #c9a84c;
+      --green: #00ff41;
+      --dark: #050505;
+      --panel: rgba(0,0,0,0.82);
+      --border: rgba(201,168,76,0.35);
+      --text: #d4c89a;
+      --dim: #7a7060;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND ── */
+    #bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    /* Spy silhouette SVG */
+    #spy-figure {
+      position: absolute;
+      bottom: 0;
+      right: 6%;
+      width: min(38vw, 520px);
+      opacity: 0.18;
+      filter: drop-shadow(0 0 40px rgba(201,168,76,0.25));
+      animation: breathe 6s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%,100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.012); }
+    }
+
+    /* Grid overlay */
+    #grid-overlay {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      animation: gridPan 40s linear infinite;
+    }
+    @keyframes gridPan {
+      from { background-position: 0 0; }
+      to   { background-position: 48px 48px; }
+    }
+
+    /* Vignette */
+    #vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.85) 100%);
+    }
+
+    /* Scanlines */
+    #scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.18) 3px,
+        rgba(0,0,0,0.18) 4px
+      );
+      pointer-events: none;
+    }
+
+    /* Ambient glow */
+    #glow-left {
+      position: absolute;
+      left: -10%;
+      top: 20%;
+      width: 55vw;
+      height: 55vw;
+      background: radial-gradient(circle, rgba(255,0,51,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    #glow-right {
+      position: absolute;
+      right: -5%;
+      bottom: 0;
+      width: 60vw;
+      height: 60vw;
+      background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── LAYOUT ── */
+    #app {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 20px 60px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      width: 100%;
+      max-width: 900px;
+      text-align: center;
+      padding: 48px 0 32px;
+    }
+
+    .classified-banner {
+      display: inline-block;
+      background: var(--red);
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(10px, 1.5vw, 14px);
+      letter-spacing: 0.4em;
+      padding: 6px 28px;
+      margin-bottom: 20px;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+      animation: flashBanner 3s ease-in-out infinite;
+    }
+    @keyframes flashBanner {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(26px, 5vw, 56px);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+      text-shadow:
+        0 0 20px rgba(201,168,76,0.5),
+        0 0 60px rgba(201,168,76,0.2);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin-top: 12px;
+      font-size: clamp(11px, 1.6vw, 14px);
+      color: var(--dim);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    .status-bar {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: 0.12em;
+    }
+    .status-item { display: flex; align-items: center; gap: 6px; }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .dot.red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 100%;
+      max-width: 900px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 8px 0 32px;
+      opacity: 0.4;
+    }
+
+    /* ── ACCESS LEVEL ── */
+    .access-warning {
+      width: 100%;
+      max-width: 900px;
+      border: 1px solid rgba(255,0,51,0.4);
+      background: rgba(255,0,51,0.05);
+      padding: 14px 24px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 12px;
+      color: #ff6680;
+      letter-spacing: 0.08em;
+    }
+    .warning-icon { font-size: 20px; flex-shrink: 0; }
+
+    /* ── GRID OF OPTIONS ── */
+    #menu {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 14px;
+    }
+
+    .menu-card {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      cursor: pointer;
+      transition: border-color 0.25s, background 0.25s, transform 0.18s;
+      overflow: hidden;
+      user-select: none;
+    }
+    .menu-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .menu-card:hover {
+      border-color: rgba(201,168,76,0.7);
+      background: rgba(201,168,76,0.06);
+      transform: translateY(-2px);
+    }
+    .menu-card:hover::before { opacity: 1; }
+
+    .card-number {
+      font-size: 10px;
+      color: var(--red);
+      letter-spacing: 0.25em;
+      margin-bottom: 6px;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .card-title {
+      font-size: clamp(12px, 1.4vw, 14px);
+      color: var(--text);
+      letter-spacing: 0.06em;
+      line-height: 1.4;
+      font-family: 'Courier Prime', monospace;
+      font-weight: 700;
+    }
+    .card-lock {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      font-size: 16px;
+      opacity: 0.35;
+      transition: opacity 0.2s;
+    }
+    .menu-card:hover .card-lock { opacity: 0.7; }
+
+    .card-bar {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px;
+      width: 0;
+      background: var(--gold);
+      transition: width 0.4s ease;
+    }
+    .menu-card:hover .card-bar { width: 100%; }
+
+    /* ── MODAL OVERLAY ── */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #modal-overlay.active { display: flex; }
+
+    #modal {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      padding: 40px 36px 36px;
+      animation: modalIn 0.3s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.93) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Corner accents */
+    #modal::before, #modal::after {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+    }
+    #modal::before {
+      top: -1px; left: -1px;
+      border-top: 2px solid var(--red);
+      border-left: 2px solid var(--red);
+    }
+    #modal::after {
+      bottom: -1px; right: -1px;
+      border-bottom: 2px solid var(--red);
+      border-right: 2px solid var(--red);
+    }
+
+    .modal-stamp {
+      position: absolute;
+      top: 18px; right: 20px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      color: var(--red);
+      opacity: 0.6;
+    }
+
+    .modal-icon {
+      font-size: 42px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .modal-heading {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(14px, 2.5vw, 18px);
+      color: var(--red);
+      letter-spacing: 0.15em;
+      margin-bottom: 12px;
+    }
+
+    .modal-body {
+      font-size: 13px;
+      line-height: 1.85;
+      color: #9a9080;
+      margin-bottom: 10px;
+    }
+
+    .modal-sub {
+      font-size: 11px;
+      color: var(--dim);
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(201,168,76,0.12);
+      letter-spacing: 0.08em;
+    }
+
+    .modal-topic {
+      display: inline-block;
+      font-size: 10px;
+      color: var(--gold);
+      letter-spacing: 0.2em;
+      opacity: 0.7;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    #modal-close {
+      margin-top: 28px;
+      background: transparent;
+      border: 1px solid rgba(201,168,76,0.4);
+      color: var(--gold);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      padding: 10px 28px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      text-transform: uppercase;
+    }
+    #modal-close:hover {
+      background: rgba(201,168,76,0.1);
+      border-color: var(--gold);
+    }
+
+    /* Glitch animation on modal heading */
+    @keyframes glitch {
+      0%   { clip-path: inset(0 0 96% 0); transform: translateX(-3px); }
+      10%  { clip-path: inset(40% 0 50% 0); transform: translateX(3px); }
+      20%  { clip-path: inset(80% 0 10% 0); transform: translateX(-2px); }
+      30%  { clip-path: inset(20% 0 70% 0); transform: translateX(2px); }
+      40%  { clip-path: inset(60% 0 30% 0); transform: translateX(-1px); }
+      50%  { clip-path: inset(0 0 0 0); transform: translateX(0); }
+      100% { clip-path: inset(0 0 0 0); transform: translateX(0); }
+    }
+
+    .modal-heading.glitch-anim {
+      animation: glitch 0.6s steps(1) forwards;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 20px;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--dim);
+    }
+
+    /* ── TYPING CURSOR ── */
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 14px;
+      background: var(--gold);
+      vertical-align: middle;
+      margin-left: 4px;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* IP scramble ticker */
+    #ip-ticker {
+      font-size: 10px;
+      color: var(--red);
+      letter-spacing: 0.18em;
+      margin-top: 6px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+<!-- BACKGROUND -->
+<div id="bg">
+  <div id="grid-overlay"></div>
+  <div id="glow-left"></div>
+  <div id="glow-right"></div>
+
+  <!-- Spy silhouette (pure SVG, no external image needed) -->
+  <svg id="spy-figure" viewBox="0 0 320 600" xmlns="http://www.w3.org/2000/svg" fill="#c9a84c">
+    <!-- Head -->
+    <ellipse cx="160" cy="60" rx="34" ry="38"/>
+    <!-- Fedora brim -->
+    <ellipse cx="160" cy="38" rx="52" ry="10"/>
+    <!-- Fedora top -->
+    <rect x="124" y="12" width="72" height="30" rx="8"/>
+    <!-- Neck -->
+    <rect x="150" y="96" width="20" height="18"/>
+    <!-- Coat body (wide, backward stance) -->
+    <path d="M80 114 C60 120 44 200 48 320 L90 320 L100 230 L160 250 L220 230 L230 320 L272 320 C276 200 260 120 240 114 Z"/>
+    <!-- Left arm (slightly out) -->
+    <path d="M80 130 C50 150 30 200 24 250 L50 258 C58 216 74 170 98 148 Z"/>
+    <!-- Right arm (out, holding something) -->
+    <path d="M240 130 C270 150 290 200 296 250 L270 258 C262 216 246 170 222 148 Z"/>
+    <!-- Left hand with gun -->
+    <ellipse cx="37" cy="262" rx="14" ry="10"/>
+    <rect x="20" cy="265" x="20" y="258" width="28" height="7" rx="3"/>
+    <!-- Silencer barrel -->
+    <rect x="48" y="259" width="22" height="5" rx="2"/>
+    <!-- Legs -->
+    <path d="M100 318 L96 490 L126 490 L160 380 L194 490 L224 490 L220 318 Z"/>
+    <!-- Shoes -->
+    <ellipse cx="111" cy="492" rx="24" ry="10"/>
+    <ellipse cx="209" cy="492" rx="24" ry="10"/>
+    <!-- Coat tail flare -->
+    <path d="M88 280 C60 310 55 360 62 400 L92 392 C88 358 92 316 108 296 Z" opacity="0.6"/>
+    <path d="M232 280 C260 310 265 360 258 400 L228 392 C232 358 228 316 212 296 Z" opacity="0.6"/>
+  </svg>
+
+  <div id="vignette"></div>
+  <div id="scanlines"></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="classified-banner">⬛ TOP SECRET // EYES ONLY ⬛</div>
+    <h1>OPERATION<br/>DOSSIER</h1>
+    <div class="subtitle">Secure Intelligence Repository — Clearance Required</div>
+    <div class="status-bar">
+      <span class="status-item"><span class="dot red"></span> UNAUTHORIZED ACCESS DETECTED</span>
+      <span class="status-item"><span class="dot"></span> SYSTEM ONLINE</span>
+      <span class="status-item"><span class="dot"></span> ENCRYPTION ACTIVE</span>
+    </div>
+    <div id="ip-ticker">TRACKING IP: <span id="ip-display">...</span></div>
+  </header>
+
+  <div class="divider"></div>
+
+  <div class="access-warning">
+    <span class="warning-icon">⚠</span>
+    <span>All access attempts are logged and monitored. Unauthorized viewing of classified sections constitutes a breach under Intelligence Directive 7-ALPHA. Proceed with caution.</span>
+  </div>
+
+  <div id="menu"></div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal">
+    <span class="modal-stamp">FILE-LOCKED</span>
+    <span class="modal-icon" id="modal-icon">🔒</span>
+    <div class="modal-topic" id="modal-topic"></div>
+    <div class="modal-heading" id="modal-heading"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <button id="modal-close" onclick="closeModal()">[ CLOSE SECURE CHANNEL ]</button>
+  </div>
+</div>
+
+<footer>CLASSIFIED INTELLIGENCE SYSTEM v4.7 // ALL DATA ENCRYPTED // UNAUTHORISED ACCESS IS FUTILE</footer>
+
+<script>
+  // ── DATA ──
+  const items = [
+    { num: "01", title: "Who I Am", icon: "👤", file: "IDENTITY-ALPHA" },
+    { num: "02", title: "My Real Identity & Plans for the Future", icon: "🕵️", file: "IDENTITY-DEEP" },
+    { num: "03", title: "Findings About You", icon: "🔍", file: "TARGET-PROFILE" },
+    { num: "04", title: "Suggestions for You", icon: "📋", file: "DIRECTIVE-PERSONAL" },
+    { num: "05", title: "What I Know But You Don't", icon: "🧠", file: "INTEL-CLASSIFIED" },
+    { num: "06", title: "Confidential Details", icon: "📁", file: "CONF-DETAILS-7" },
+    { num: "07", title: "Purpose of the Meeting", icon: "🤝", file: "MEETING-BRIEF" },
+    { num: "08", title: "The Reason of My Death — Untold Secret", icon: "💀", file: "DOSSIER-MORTEM" },
+    { num: "09", title: "The Unspoken Truth", icon: "🌑", file: "TRUTH-ZERO" },
+    { num: "10", title: "Journey of College", icon: "🎓", file: "CHRONICLES-EDU" },
+    { num: "11", title: "Mug Behind Back", icon: "☕", file: "OPS-BACKSTORY" },
+    { num: "12", title: "Your Thoughts About Me", icon: "💭", file: "PSYCH-EVAL" },
+    { num: "13", title: "Class 12th Story", icon: "📖", file: "ARCHIVE-XII" },
+    { num: "14", title: "Summary of Persona", icon: "🎭", file: "PERSONA-CORE" },
+    { num: "15", title: "Future Possibilities", icon: "🔭", file: "FUTURES-PROJEX" },
+  ];
+
+  const messages = [
+    { heading: "ACCESS DENIED", body: "You are not authorised to view this file. This section requires Level-5 clearance. Please contact the developer directly to obtain the necessary access token.", sub: "To request authorisation, contact the developer. Attempts to bypass this lock are recorded." },
+    { heading: "IP NOT ALLOWED", body: "Your IP address has been flagged in our restricted registry. This content is locked to a whitelist of approved endpoints only. Your current session has been logged.", sub: "If you believe this is an error, submit an authorisation request to the developer with your verified credentials." },
+    { heading: "CLEARANCE REQUIRED", body: "This dossier section is sealed under Protocol OMEGA-7. No personnel below Clearance Level 9 may access this data. Your credentials do not meet the minimum threshold.", sub: "Contact the developer for a clearance upgrade. All failed access attempts trigger a silent alert." },
+    { heading: "SESSION BLOCKED", body: "Your session token is not recognised by the secure gateway. Authentication failed at the third checkpoint. This incident has been reported.", sub: "Reach out to the developer to register your access credentials before proceeding." },
+    { heading: "RESTRICTED ZONE", body: "You have attempted to enter a restricted zone within this intelligence archive. Unauthorised viewers are not permitted to proceed beyond this point.", sub: "Request authorisation from the developer. Your digital fingerprint has been captured." },
+  ];
+
+  // ── RENDER MENU ──
+  const menu = document.getElementById('menu');
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'menu-card';
+    card.innerHTML = `
+      <div class="card-number">FILE — ${item.num}</div>
+      <div class="card-title">${item.title}</div>
+      <span class="card-lock">🔐</span>
+      <div class="card-bar"></div>
+    `;
+    card.addEventListener('click', () => openModal(item));
+    menu.appendChild(card);
+  });
+
+  // ── MODAL ──
+  function openModal(item) {
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    document.getElementById('modal-icon').textContent = item.icon;
+    document.getElementById('modal-topic').textContent = `${item.file} // ${item.num}`;
+
+    const heading = document.getElementById('modal-heading');
+    heading.textContent = msg.heading;
+    heading.classList.remove('glitch-anim');
+    void heading.offsetWidth; // reflow
+    heading.classList.add('glitch-anim');
+
+    document.getElementById('modal-body').textContent = msg.body;
+    document.getElementById('modal-sub').innerHTML = `<strong style="color:var(--gold)">FILE:</strong> ${item.title}<br/>${msg.sub}`;
+
+    document.getElementById('modal-overlay').classList.add('active');
+    scrambleIP();
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('active');
+  }
+
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+
+  // ── IP SCRAMBLE ──
+  const ipDisplay = document.getElementById('ip-display');
+  function scrambleIP() {
+    let count = 0;
+    const interval = setInterval(() => {
+      const fake = Array.from({length:4}, () => Math.floor(Math.random()*256)).join('.');
+      ipDisplay.textContent = fake;
+      count++;
+      if (count > 14) {
+        clearInterval(interval);
+        ipDisplay.textContent = '██.███.██.███ [MASKED]';
+      }
+    }, 80);
+  }
+  scrambleIP();
+  setInterval(scrambleIP, 12000);
+
+  // ── TYPING TITLE EFFECT (subtle) ──
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+</body>
+</html>

@@ -59,6 +59,35 @@
       opacity:0;transition:opacity .5s,transform .2s,border-color .3s}
     #audioBtn:hover{border-color:var(--gold);transform:scale(1.1)}
 
+    /* MUSIC NUDGE */
+    #music-nudge{
+      position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+      z-index:200;pointer-events:none;
+      opacity:0;transition:opacity .8s ease;
+    }
+    #music-nudge.show{opacity:1;pointer-events:auto;cursor:pointer}
+    #nudge-inner{
+      display:flex;flex-direction:column;align-items:center;gap:.9rem;
+      padding:2rem 3rem;
+      border:1px solid rgba(212,168,67,.35);
+      background:rgba(0,0,0,.75);
+      backdrop-filter:blur(12px);
+      animation:nudgePulse 2.5s ease-in-out infinite;
+    }
+    @keyframes nudgePulse{
+      0%,100%{box-shadow:0 0 0 0 rgba(212,168,67,.08)}
+      50%{box-shadow:0 0 40px 12px rgba(212,168,67,.14)}
+    }
+    #nudge-icon{
+      font-size:1.8rem;color:var(--gold);
+      animation:iconFloat 2s ease-in-out infinite;
+    }
+    @keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    #nudge-text{
+      font-family:"Cinzel",serif;font-size:.58rem;
+      letter-spacing:.45em;color:rgba(212,168,67,.75);
+    }
+
     /* PARTICLES */
     #particleCanvas{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0}
 
@@ -176,6 +205,14 @@
 <canvas id="particleCanvas"></canvas>
 <div id="pulseLight"></div>
 <button id="audioBtn" title="Toggle music">&#9834;</button>
+
+<!-- MUSIC NUDGE — visible on load, fades after music starts -->
+<div id="music-nudge">
+  <div id="nudge-inner">
+    <div id="nudge-icon">&#9834;</div>
+    <div id="nudge-text">TAP TO BEGIN WITH MUSIC</div>
+  </div>
+</div>
 
 <div id="scroll-hint"><span>SCROLL</span><div class="arr"></div></div>
 
@@ -384,24 +421,79 @@
   }
   function startP(){if(pOn)return;pOn=true;mkP();dp()}
 
-  /* ─── AUDIO — Saiyaara instrumental proxy ─── */
-  /* Using a cinematic ambient piano piece as placeholder.
-     Replace src with your own hosted instrumental of Saiyaara. */
-  const AUDIO='https://cdn.pixabay.com/download/audio/2023/06/15/audio_a7e9b49c0e.mp3';
+  /* ─── AUDIO ─── */
+  /* Multiple fallback sources for reliability */
+  /* 
+   * TO USE SAIYAARA (Ek Tha Tiger) INSTRUMENTAL:
+   * 1. Download the music-only version of "Saiyaara" 
+   * 2. Host it alongside this file as "saiyaara.mp3"
+   * 3. Change AUDIO_SRCS[0] to './saiyaara.mp3'
+   * Currently using a cinematic ambient fallback track.
+   */
+  const AUDIO_SRCS = [
+    'https://cdn.pixabay.com/download/audio/2024/02/28/audio_71e42d4d13.mp3',
+    'https://cdn.pixabay.com/download/audio/2022/11/22/audio_febc508520.mp3',
+    'https://cdn.pixabay.com/download/audio/2022/10/12/audio_6c740a49c4.mp3'
+  ];
+
   function initAudio(){
     if(audioLoaded)return;audioLoaded=true;
-    sound=new Howl({src:[AUDIO],html5:true,loop:true,volume:0,
-      onloaderror:()=>console.warn('Audio unavailable — place your audio file')});
+    sound=new Howl({
+      src: AUDIO_SRCS,
+      html5: true,
+      loop: true,
+      volume: 0,
+      format: ['mp3'],
+      onload: function(){ console.log('Audio ready'); },
+      onloaderror: function(id,err){ console.warn('Audio load error:',err); },
+      onplayerror: function(id,err){
+        console.warn('Play error, retrying:',err);
+        sound.once('unlock', function(){ sound.play(); });
+      }
+    });
   }
+
   function playAudio(){
     if(!sound||audioPlaying)return;
-    try{sound.play();sound.fade(0,.62,5500);audioPlaying=true;btn.innerHTML='&#9836;';}catch(e){}
+    try{
+      const id = sound.play();
+      sound.fade(0,.65,5000,id);
+      audioPlaying=true;
+      btn.innerHTML='&#9836;';
+      btn.style.borderColor='rgba(212,168,67,.8)';
+    }catch(e){ console.warn('Play failed:',e); }
   }
-  btn.addEventListener('click',()=>{
+
+  btn.addEventListener('click',function(){
     initAudio();
-    if(!audioPlaying){playAudio();}
-    else{sound.pause();audioPlaying=false;btn.innerHTML='&#9834;';}
+    if(!audioPlaying){ playAudio(); }
+    else{
+      sound.pause(); audioPlaying=false;
+      btn.innerHTML='&#9834;';
+      btn.style.borderColor='rgba(212,168,67,.4)';
+    }
   });
+
+  /* Auto-start on first ANY user interaction (scroll, touch, click) */
+  let autoStarted = false;
+  function autoStart(){
+    if(autoStarted) return;
+    autoStarted = true;
+    initAudio();
+    /* Small delay so Howl has time to load */
+    setTimeout(function(){
+      if(!audioPlaying) playAudio();
+    }, 800);
+    document.removeEventListener('scroll', autoStart);
+    document.removeEventListener('touchstart', autoStart);
+    document.removeEventListener('click', autoStart);
+    // Hide nudge smoothly
+    const nudge = document.getElementById('music-nudge');
+    if(nudge){ gsap.to(nudge, {opacity:0, duration:.8, onComplete:()=>nudge.remove()}); }
+  }
+  document.addEventListener('scroll', autoStart, {passive:true, once:true});
+  document.addEventListener('touchstart', autoStart, {passive:true, once:true});
+  document.addEventListener('click', autoStart, {once:true});
 
   /* ─── LOADER — dismiss fast (0.9s) ─── */
   function go(){
@@ -421,6 +513,16 @@
     gsap.to('#pulseLight',{opacity:.65,duration:2.5,delay:1.4});
     gsap.to('#particleCanvas',{opacity:1,duration:2.5,delay:1.6,onStart:startP});
     gsap.to('#audioBtn',{opacity:1,duration:1.2,delay:2.5});
+    // Show music nudge after title appears
+    setTimeout(function(){
+      const nudge = document.getElementById('music-nudge');
+      nudge.classList.add('show');
+      // clicking nudge also starts music
+      nudge.addEventListener('click', function(){
+        autoStart();
+        gsap.to(nudge, {opacity:0, duration:.6, onComplete:()=>nudge.remove()});
+      });
+    }, 3200);
   }
 
   /* ─── EYE OPEN ─── */

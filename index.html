@@ -2,623 +2,899 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CLASSIFIED // ACCESS RESTRICTED</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Final Crossing</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cinzel:wght@300;400&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Howler.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Cormorant Garamond', 'serif'],
+            garamond: ['EB Garamond', 'serif'],
+            cinzel: ['Cinzel', 'serif'],
+          },
+        }
+      }
+    }
+  </script>
+
   <style>
     :root {
-      --red: #ff0033;
       --gold: #c9a84c;
-      --green: #00ff41;
-      --dark: #050505;
-      --panel: rgba(0,0,0,0.82);
-      --border: rgba(201,168,76,0.35);
-      --text: #d4c89a;
-      --dim: #7a7060;
+      --gold-light: #e8c97a;
+      --warm: #f0e0c0;
+      --charcoal: #0e0e0e;
+      --dark: #080808;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    html, body {
-      height: 100%;
+    html { scroll-behavior: auto; }
+
+    body {
       background: var(--dark);
-      color: var(--text);
-      font-family: 'Share Tech Mono', monospace;
+      color: #e8e2d9;
+      font-family: 'Cormorant Garamond', serif;
       overflow-x: hidden;
+      cursor: default;
     }
 
-    /* ── BACKGROUND ── */
-    #bg {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      overflow: hidden;
-    }
-
-    /* Spy silhouette SVG */
-    #spy-figure {
-      position: absolute;
-      bottom: 0;
-      right: 6%;
-      width: min(38vw, 520px);
-      opacity: 0.18;
-      filter: drop-shadow(0 0 40px rgba(201,168,76,0.25));
-      animation: breathe 6s ease-in-out infinite;
-    }
-
-    @keyframes breathe {
-      0%,100% { transform: scaleY(1); }
-      50% { transform: scaleY(1.012); }
-    }
-
-    /* Grid overlay */
-    #grid-overlay {
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
-      background-size: 48px 48px;
-      animation: gridPan 40s linear infinite;
-    }
-    @keyframes gridPan {
-      from { background-position: 0 0; }
-      to   { background-position: 48px 48px; }
-    }
-
-    /* Vignette */
-    #vignette {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.85) 100%);
-    }
-
-    /* Scanlines */
-    #scanlines {
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        to bottom,
-        transparent 0px,
-        transparent 3px,
-        rgba(0,0,0,0.18) 3px,
-        rgba(0,0,0,0.18) 4px
-      );
-      pointer-events: none;
-    }
-
-    /* Ambient glow */
-    #glow-left {
-      position: absolute;
-      left: -10%;
-      top: 20%;
-      width: 55vw;
-      height: 55vw;
-      background: radial-gradient(circle, rgba(255,0,51,0.07) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    #glow-right {
-      position: absolute;
-      right: -5%;
-      bottom: 0;
-      width: 60vw;
-      height: 60vw;
-      background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    /* ── LAYOUT ── */
-    #app {
-      position: relative;
-      z-index: 10;
-      min-height: 100vh;
-      display: flex;
+    /* ─── LOADER ─── */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
       flex-direction: column;
-      align-items: center;
-      padding: 0 20px 60px;
+      transition: opacity 1.5s ease;
     }
+    #loader .loader-text {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.7rem, 2vw, 1rem);
+      letter-spacing: 0.5em;
+      color: #555;
+      animation: loaderPulse 2s ease-in-out infinite;
+    }
+    @keyframes loaderPulse { 0%,100%{opacity:.3} 50%{opacity:.9} }
 
-    /* ── HEADER ── */
-    header {
-      width: 100%;
-      max-width: 900px;
-      text-align: center;
-      padding: 48px 0 32px;
-    }
-
-    .classified-banner {
-      display: inline-block;
-      background: var(--red);
-      color: #fff;
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(10px, 1.5vw, 14px);
-      letter-spacing: 0.4em;
-      padding: 6px 28px;
-      margin-bottom: 20px;
-      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-      animation: flashBanner 3s ease-in-out infinite;
-    }
-    @keyframes flashBanner {
-      0%,100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-
-    h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(26px, 5vw, 56px);
-      font-weight: 900;
-      letter-spacing: 0.12em;
+    /* ─── AUDIO BUTTON ─── */
+    #audioBtn {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 1000;
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.4);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
       color: var(--gold);
-      text-shadow:
-        0 0 20px rgba(201,168,76,0.5),
-        0 0 60px rgba(201,168,76,0.2);
-      line-height: 1.1;
-    }
-
-    .subtitle {
-      margin-top: 12px;
-      font-size: clamp(11px, 1.6vw, 14px);
-      color: var(--dim);
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-    }
-
-    .status-bar {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      font-size: 11px;
-      color: var(--dim);
-      letter-spacing: 0.12em;
-    }
-    .status-item { display: flex; align-items: center; gap: 6px; }
-    .dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 8px var(--green);
-      animation: pulse 2s ease-in-out infinite;
-    }
-    .dot.red { background: var(--red); box-shadow: 0 0 8px var(--red); }
-    @keyframes pulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.7); }
-    }
-
-    /* ── DIVIDER ── */
-    .divider {
-      width: 100%;
-      max-width: 900px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      margin: 8px 0 32px;
-      opacity: 0.4;
-    }
-
-    /* ── ACCESS LEVEL ── */
-    .access-warning {
-      width: 100%;
-      max-width: 900px;
-      border: 1px solid rgba(255,0,51,0.4);
-      background: rgba(255,0,51,0.05);
-      padding: 14px 24px;
-      margin-bottom: 32px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-size: 12px;
-      color: #ff6680;
-      letter-spacing: 0.08em;
-    }
-    .warning-icon { font-size: 20px; flex-shrink: 0; }
-
-    /* ── GRID OF OPTIONS ── */
-    #menu {
-      width: 100%;
-      max-width: 900px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 14px;
-    }
-
-    .menu-card {
-      position: relative;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      padding: 20px 22px;
+      font-size: 1.1rem;
       cursor: pointer;
-      transition: border-color 0.25s, background 0.25s, transform 0.18s;
-      overflow: hidden;
-      user-select: none;
-    }
-    .menu-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 60%);
+      display: flex; align-items: center; justify-content: center;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: opacity 0.5s, border-color 0.3s, transform 0.2s;
     }
-    .menu-card:hover {
-      border-color: rgba(201,168,76,0.7);
-      background: rgba(201,168,76,0.06);
-      transform: translateY(-2px);
-    }
-    .menu-card:hover::before { opacity: 1; }
+    #audioBtn:hover { border-color: var(--gold); transform: scale(1.1); }
+    #audioBtn.visible { opacity: 1; }
 
-    .card-number {
-      font-size: 10px;
-      color: var(--red);
-      letter-spacing: 0.25em;
-      margin-bottom: 6px;
-      font-family: 'Orbitron', sans-serif;
+    /* ─── SCROLL PROGRESS ─── */
+    #progress {
+      position: fixed; top: 0; left: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      width: 0%; z-index: 999;
+      transition: width 0.1s linear;
     }
-    .card-title {
-      font-size: clamp(12px, 1.4vw, 14px);
-      color: var(--text);
-      letter-spacing: 0.06em;
-      line-height: 1.4;
-      font-family: 'Courier Prime', monospace;
-      font-weight: 700;
-    }
-    .card-lock {
-      position: absolute;
-      top: 14px;
-      right: 16px;
-      font-size: 16px;
-      opacity: 0.35;
-      transition: opacity 0.2s;
-    }
-    .menu-card:hover .card-lock { opacity: 0.7; }
 
-    .card-bar {
-      position: absolute;
-      bottom: 0; left: 0;
-      height: 2px;
-      width: 0;
-      background: var(--gold);
-      transition: width 0.4s ease;
-    }
-    .menu-card:hover .card-bar { width: 100%; }
+    /* ─── GENERAL SECTIONS ─── */
+    section { position: relative; }
 
-    /* ── MODAL OVERLAY ── */
-    #modal-overlay {
-      display: none;
+    /* ─── EYE SPLIT INTRO ─── */
+    #eye-container {
+      position: fixed; inset: 0; z-index: 100;
+      pointer-events: none;
+    }
+    #eye-top, #eye-bottom {
+      position: absolute; left: 0; right: 0; height: 50%;
+      background: #000;
+      transition: none;
+    }
+    #eye-top { top: 0; transform-origin: top; }
+    #eye-bottom { bottom: 0; transform-origin: bottom; }
+
+    /* ─── PARTICLES CANVAS ─── */
+    #particleCanvas {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0;
+    }
+
+    /* ─── PULSE LIGHT ─── */
+    #pulseLight {
       position: fixed;
-      inset: 0;
-      z-index: 100;
-      background: rgba(0,0,0,0.88);
-      backdrop-filter: blur(6px);
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 40px 20px rgba(255,255,255,0.05), 0 0 100px 50px rgba(255,255,255,0.03);
+      z-index: 11;
+      opacity: 0;
+      animation: pulse 4s ease-in-out infinite;
+      pointer-events: none;
     }
-    #modal-overlay.active { display: flex; }
-
-    #modal {
-      position: relative;
-      width: 100%;
-      max-width: 520px;
-      background: #0a0a0a;
-      border: 1px solid var(--border);
-      padding: 40px 36px 36px;
-      animation: modalIn 0.3s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
-    }
-    @keyframes modalIn {
-      from { opacity: 0; transform: scale(0.93) translateY(10px); }
-      to   { opacity: 1; transform: scale(1) translateY(0); }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 40px 20px rgba(255,255,255,0.04), 0 0 100px 50px rgba(255,255,255,0.02); }
+      50% { box-shadow: 0 0 80px 40px rgba(255,255,255,0.08), 0 0 200px 100px rgba(255,255,255,0.04); }
     }
 
-    /* Corner accents */
-    #modal::before, #modal::after {
-      content: '';
-      position: absolute;
-      width: 16px; height: 16px;
+    /* ─── SCENE BACKGROUNDS ─── */
+    #scene-warm-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse at 60% 40%, rgba(201,168,76,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 20% 80%, rgba(180,100,40,0.08) 0%, transparent 50%),
+                  #0e0c0a;
+      opacity: 0;
+      pointer-events: none;
     }
-    #modal::before {
-      top: -1px; left: -1px;
-      border-top: 2px solid var(--red);
-      border-left: 2px solid var(--red);
-    }
-    #modal::after {
-      bottom: -1px; right: -1px;
-      border-bottom: 2px solid var(--red);
-      border-right: 2px solid var(--red);
-    }
-
-    .modal-stamp {
-      position: absolute;
-      top: 18px; right: 20px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 9px;
-      letter-spacing: 0.3em;
-      color: var(--red);
-      opacity: 0.6;
+    #scene-final-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse at 50% 30%, rgba(201,168,76,0.06) 0%, transparent 70%), #070507;
+      opacity: 0;
+      pointer-events: none;
     }
 
-    .modal-icon {
-      font-size: 42px;
-      margin-bottom: 16px;
+    /* ─── SECTION STYLES ─── */
+    .act {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 20;
+    }
+
+    .act-inner {
+      max-width: 700px;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .act-label {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.55rem, 1.5vw, 0.7rem);
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      opacity: 0.7;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
       display: block;
     }
 
-    .modal-heading {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(14px, 2.5vw, 18px);
-      color: var(--red);
+    .act-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.6rem, 5vw, 3rem);
+      font-weight: 300;
       letter-spacing: 0.15em;
-      margin-bottom: 12px;
+      line-height: 1.3;
+      color: #f0ece6;
+      margin-bottom: 2rem;
     }
 
-    .modal-body {
-      font-size: 13px;
-      line-height: 1.85;
-      color: #9a9080;
-      margin-bottom: 10px;
+    .act-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+      font-weight: 300;
+      line-height: 2;
+      letter-spacing: 0.04em;
+      color: #c8c0b4;
     }
 
-    .modal-sub {
-      font-size: 11px;
-      color: var(--dim);
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(201,168,76,0.12);
-      letter-spacing: 0.08em;
+    .act-body em {
+      font-style: italic;
+      color: #e0d8cc;
     }
 
-    .modal-topic {
-      display: inline-block;
-      font-size: 10px;
-      color: var(--gold);
-      letter-spacing: 0.2em;
-      opacity: 0.7;
-      margin-bottom: 20px;
-      text-transform: uppercase;
+    .divider {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      margin: 2.5rem auto;
+      opacity: 0.5;
     }
 
-    #modal-close {
-      margin-top: 28px;
-      background: transparent;
-      border: 1px solid rgba(201,168,76,0.4);
-      color: var(--gold);
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 0.2em;
-      padding: 10px 28px;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-      text-transform: uppercase;
-    }
-    #modal-close:hover {
-      background: rgba(201,168,76,0.1);
-      border-color: var(--gold);
-    }
-
-    /* Glitch animation on modal heading */
-    @keyframes glitch {
-      0%   { clip-path: inset(0 0 96% 0); transform: translateX(-3px); }
-      10%  { clip-path: inset(40% 0 50% 0); transform: translateX(3px); }
-      20%  { clip-path: inset(80% 0 10% 0); transform: translateX(-2px); }
-      30%  { clip-path: inset(20% 0 70% 0); transform: translateX(2px); }
-      40%  { clip-path: inset(60% 0 30% 0); transform: translateX(-1px); }
-      50%  { clip-path: inset(0 0 0 0); transform: translateX(0); }
-      100% { clip-path: inset(0 0 0 0); transform: translateX(0); }
-    }
-
-    .modal-heading.glitch-anim {
-      animation: glitch 0.6s steps(1) forwards;
-    }
-
-    /* ── FOOTER ── */
-    footer {
+    /* ─── EULER FORMULA ─── */
+    .euler-block {
+      margin: 3rem auto;
+      padding: 2rem;
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 2px;
+      background: rgba(201,168,76,0.03);
       position: relative;
-      z-index: 10;
+    }
+    .euler-block::before, .euler-block::after {
+      content: '';
+      position: absolute;
+      width: 12px; height: 12px;
+      border-color: var(--gold);
+      border-style: solid;
+      opacity: 0.5;
+    }
+    .euler-block::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+    .euler-block::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+
+    .euler-formula {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      color: var(--gold-light);
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+    }
+    .euler-caption {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(0.85rem, 2vw, 1rem);
+      font-style: italic;
+      color: rgba(201,168,76,0.6);
+      letter-spacing: 0.1em;
+    }
+
+    /* ─── PHOTO SECTION ─── */
+    #photo-section {
+      min-height: 200vh;
+      position: relative; z-index: 20;
+    }
+    #photo-sticky {
+      position: sticky; top: 0;
+      height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    #photo-frame {
+      position: relative;
+      width: min(85vw, 600px);
+      aspect-ratio: 4/3;
+    }
+    #photo-bg-blur {
+      position: absolute; inset: -20px;
+      background: radial-gradient(ellipse at center, rgba(201,168,76,0.15), transparent 70%);
+      filter: blur(40px);
+      opacity: 0;
+    }
+    #main-photo {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: blur(40px) brightness(0.4);
+      transform: scale(1.08);
+      border: 1px solid rgba(201,168,76,0.15);
+    }
+    #photo-overlay-text {
+      position: absolute;
+      bottom: -5rem; left: 50%; transform: translateX(-50%);
+      width: 120%;
       text-align: center;
-      padding: 20px;
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      color: var(--dim);
+      opacity: 0;
     }
 
-    /* ── TYPING CURSOR ── */
-    .cursor {
-      display: inline-block;
-      width: 8px;
-      height: 14px;
-      background: var(--gold);
-      vertical-align: middle;
-      margin-left: 4px;
-      animation: blink 1s step-end infinite;
+    /* ─── FINAL OUTRO ─── */
+    #outro {
+      min-height: 100vh;
+      position: relative; z-index: 20;
+      display: flex; align-items: center; justify-content: center;
     }
-    @keyframes blink {
-      0%,100% { opacity: 1; }
-      50% { opacity: 0; }
+    #outro-inner {
+      max-width: 640px; padding: 4rem 2rem; text-align: center;
+      opacity: 0;
+    }
+    .final-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      font-style: italic;
+      line-height: 2.2;
+      letter-spacing: 0.05em;
+      color: #d8d0c6;
+    }
+    .final-name {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.6rem, 1.5vw, 0.75rem);
+      letter-spacing: 0.5em;
+      color: var(--gold);
+      opacity: 0.6;
+      margin-top: 2.5rem;
     }
 
-    /* IP scramble ticker */
-    #ip-ticker {
-      font-size: 10px;
-      color: var(--red);
-      letter-spacing: 0.18em;
-      margin-top: 6px;
-      opacity: 0.7;
+    /* ─── BLACK VOID ENDING ─── */
+    #void {
+      min-height: 100vh;
+      position: relative; z-index: 20;
+      background: #000;
+    }
+
+    /* ─── SCROLL HINT ─── */
+    #scroll-hint {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      z-index: 50; text-align: center; opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s;
+    }
+    #scroll-hint span {
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.5em;
+      color: rgba(201,168,76,0.5);
+      margin-bottom: 0.5rem;
+    }
+    #scroll-hint .arrow {
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, rgba(201,168,76,0.5), transparent);
+      margin: 0 auto;
+      animation: arrowDrop 1.5s ease-in-out infinite;
+    }
+    @keyframes arrowDrop { 0%{transform:translateY(-5px);opacity:.3} 70%{opacity:.8} 100%{transform:translateY(5px);opacity:.3} }
+
+    /* ─── GRAIN OVERLAY ─── */
+    #grain {
+      position: fixed; inset: 0; z-index: 5;
+      pointer-events: none; opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+    }
+
+    /* ─── LARGE SPACER for scroll pacing ─── */
+    .scroll-spacer { height: 100vh; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 640px) {
+      .act-body { line-height: 1.85; }
+      #photo-frame { width: 92vw; }
     }
   </style>
 </head>
 <body>
 
-<!-- BACKGROUND -->
-<div id="bg">
-  <div id="grid-overlay"></div>
-  <div id="glow-left"></div>
-  <div id="glow-right"></div>
+  <!-- Noise grain -->
+  <div id="grain"></div>
 
-  <!-- Spy silhouette (pure SVG, no external image needed) -->
-  <svg id="spy-figure" viewBox="0 0 320 600" xmlns="http://www.w3.org/2000/svg" fill="#c9a84c">
-    <!-- Head -->
-    <ellipse cx="160" cy="60" rx="34" ry="38"/>
-    <!-- Fedora brim -->
-    <ellipse cx="160" cy="38" rx="52" ry="10"/>
-    <!-- Fedora top -->
-    <rect x="124" y="12" width="72" height="30" rx="8"/>
-    <!-- Neck -->
-    <rect x="150" y="96" width="20" height="18"/>
-    <!-- Coat body (wide, backward stance) -->
-    <path d="M80 114 C60 120 44 200 48 320 L90 320 L100 230 L160 250 L220 230 L230 320 L272 320 C276 200 260 120 240 114 Z"/>
-    <!-- Left arm (slightly out) -->
-    <path d="M80 130 C50 150 30 200 24 250 L50 258 C58 216 74 170 98 148 Z"/>
-    <!-- Right arm (out, holding something) -->
-    <path d="M240 130 C270 150 290 200 296 250 L270 258 C262 216 246 170 222 148 Z"/>
-    <!-- Left hand with gun -->
-    <ellipse cx="37" cy="262" rx="14" ry="10"/>
-    <rect x="20" cy="265" x="20" y="258" width="28" height="7" rx="3"/>
-    <!-- Silencer barrel -->
-    <rect x="48" y="259" width="22" height="5" rx="2"/>
-    <!-- Legs -->
-    <path d="M100 318 L96 490 L126 490 L160 380 L194 490 L224 490 L220 318 Z"/>
-    <!-- Shoes -->
-    <ellipse cx="111" cy="492" rx="24" ry="10"/>
-    <ellipse cx="209" cy="492" rx="24" ry="10"/>
-    <!-- Coat tail flare -->
-    <path d="M88 280 C60 310 55 360 62 400 L92 392 C88 358 92 316 108 296 Z" opacity="0.6"/>
-    <path d="M232 280 C260 310 265 360 258 400 L228 392 C232 358 228 316 212 296 Z" opacity="0.6"/>
-  </svg>
+  <!-- Scroll progress bar -->
+  <div id="progress"></div>
 
-  <div id="vignette"></div>
-  <div id="scanlines"></div>
-</div>
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-text">PREPARING THE CROSSING</div>
+  </div>
 
-<!-- APP -->
-<div id="app">
-  <header>
-    <div class="classified-banner">⬛ TOP SECRET // EYES ONLY ⬛</div>
-    <h1>OPERATION<br/>DOSSIER</h1>
-    <div class="subtitle">Secure Intelligence Repository — Clearance Required</div>
-    <div class="status-bar">
-      <span class="status-item"><span class="dot red"></span> UNAUTHORIZED ACCESS DETECTED</span>
-      <span class="status-item"><span class="dot"></span> SYSTEM ONLINE</span>
-      <span class="status-item"><span class="dot"></span> ENCRYPTION ACTIVE</span>
+  <!-- Eye split overlay -->
+  <div id="eye-container">
+    <div id="eye-top"></div>
+    <div id="eye-bottom"></div>
+  </div>
+
+  <!-- Warm and Final background layers -->
+  <div id="scene-warm-bg"></div>
+  <div id="scene-final-bg"></div>
+
+  <!-- Particle canvas -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Pulse light -->
+  <div id="pulseLight"></div>
+
+  <!-- Audio button -->
+  <button id="audioBtn" title="Toggle music">♪</button>
+
+  <!-- Scroll hint -->
+  <div id="scroll-hint">
+    <span>SCROLL</span>
+    <div class="arrow"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       ACT 0 — TITLE REVEAL (trigger eye open)
+  ════════════════════════════════════════ -->
+  <section id="act0" class="act scroll-spacer" style="min-height:100vh;">
+    <div class="act-inner">
+      <span class="act-label" id="title-label">A Cinematic Farewell</span>
+      <h1 class="act-title" id="main-title" style="font-size:clamp(2rem,7vw,4.5rem);opacity:0;">
+        The Final<br/>Crossing
+      </h1>
+      <div class="divider" id="title-divider" style="opacity:0;"></div>
+      <p class="act-body" id="title-sub" style="opacity:0; font-size:clamp(0.85rem,2vw,1rem); letter-spacing:0.2em; font-family:'Cinzel',serif; color:rgba(201,168,76,0.6); font-weight:300;">
+        FOR THE ONE WHO NEVER KNEW HOW BRIGHT SHE WAS
+      </p>
     </div>
-    <div id="ip-ticker">TRACKING IP: <span id="ip-display">...</span></div>
-  </header>
+  </section>
 
-  <div class="divider"></div>
+  <!-- Spacer to pace the eye opening -->
+  <div class="scroll-spacer"></div>
 
-  <div class="access-warning">
-    <span class="warning-icon">⚠</span>
-    <span>All access attempts are logged and monitored. Unauthorized viewing of classified sections constitutes a breach under Intelligence Directive 7-ALPHA. Proceed with caution.</span>
-  </div>
+  <!-- ════════════════════════════════════════
+       ACT 1 — THE LOST SPARK
+  ════════════════════════════════════════ -->
+  <section id="act1" class="act" style="min-height:150vh;">
+    <div class="act-inner" id="act1-inner">
+      <span class="act-label">Act I &nbsp;·&nbsp; The Lost Spark</span>
+      <h2 class="act-title">There Was a World<br/>Full of Noise</h2>
+      <div class="divider"></div>
+      <p class="act-body">
+        In a world that moved too fast and spoke too loud, there existed a traveler — 
+        neither searching for purpose nor fleeing from one. He simply moved, 
+        as travelers do.
+      </p>
+      <br/><br/>
+      <p class="act-body">
+        And then, in the chaos of lecture halls and corridors and the relentless hum of 
+        college life — he saw her. A small, quiet child lost in the noise of the world. 
+        Not broken. Never broken. But <em>unreached</em>.
+      </p>
+      <br/><br/>
+      <p class="act-body">
+        She carried within her a spark the world had not yet learned to see. 
+        It pulsed faintly — stubborn, patient, waiting for someone 
+        with the eyes to find it.
+      </p>
+    </div>
+  </section>
 
-  <div id="menu"></div>
-</div>
+  <div style="height:50vh;"></div>
 
-<!-- MODAL -->
-<div id="modal-overlay">
-  <div id="modal">
-    <span class="modal-stamp">FILE-LOCKED</span>
-    <span class="modal-icon" id="modal-icon">🔒</span>
-    <div class="modal-topic" id="modal-topic"></div>
-    <div class="modal-heading" id="modal-heading"></div>
-    <div class="modal-body" id="modal-body"></div>
-    <div class="modal-sub" id="modal-sub"></div>
-    <button id="modal-close" onclick="closeModal()">[ CLOSE SECURE CHANNEL ]</button>
-  </div>
-</div>
+  <!-- ════════════════════════════════════════
+       ACT 2 — THE GUIDANCE
+  ════════════════════════════════════════ -->
+  <section id="act2" class="act" style="min-height:180vh;">
+    <div class="act-inner" id="act2-inner">
+      <span class="act-label">Act II &nbsp;·&nbsp; The Guidance</span>
+      <h2 class="act-title">The Traveler<br/>Stepped In</h2>
+      <div class="divider"></div>
+      <p class="act-body">
+        He did not come to own her story. He did not come to be her destination. 
+        He came only to walk beside her — to hold a lantern where the road 
+        disappeared into shadow.
+      </p>
+      <br/><br/>
+      <p class="act-body">
+        Like a certain beloved figure who crossed a border simply to return a child 
+        to where she belonged — the traveler's only mission was this: 
+        <em>guide her safely through.</em> Reunite her with her own strength. 
+        Her true home. And then, quietly, let go.
+      </p>
+      <br/><br/>
+      <p class="act-body">
+        The bond that formed between them was never designed by logic. 
+        It grew in the margins — between shared silences and unspoken understanding, 
+        between the chaos of examinations and the stillness of just being known.
+      </p>
 
-<footer>CLASSIFIED INTELLIGENCE SYSTEM v4.7 // ALL DATA ENCRYPTED // UNAUTHORISED ACCESS IS FUTILE</footer>
+      <div class="divider" style="margin: 4rem auto;"></div>
 
-<script>
-  // ── DATA ──
-  const items = [
-    { num: "01", title: "Who I Am", icon: "👤", file: "IDENTITY-ALPHA" },
-    { num: "02", title: "My Real Identity ", icon: "🕵️", file: "IDENTITY-DEEP" },
-    { num: "03", title: "Findings About You", icon: "🔍", file: "TARGET-PROFILE" },
-    { num: "04", title: "Suggestions for You", icon: "📋", file: "DIRECTIVE-PERSONAL" },
-    { num: "05", title: "What I Know But You Don't know that i know", icon: "🧠", file: "INTEL-CLASSIFIED" },
-    { num: "06", title: "Confidential Details", icon: "📁", file: "CONF-DETAILS-7" },
-    { num: "07", title: "Purpose of the Meeting", icon: "🤝", file: "MEETING-BRIEF" },
-    { num: "08", title: "The Reason of My Death — Untold Secret", icon: "💀", file: "DOSSIER-MORTEM" },
-    { num: "09", title: "The Unspoken Truth", icon: "🌑", file: "TRUTH-ZERO" },
-    { num: "10", title: "Journey of College", icon: "🎓", file: "CHRONICLES-EDU" },
-    { num: "11", title: "Mug Behind Back and the dark truth", icon: "☕", file: "OPS-BACKSTORY" },
-    { num: "12", title: "Your Thoughts About Me", icon: "💭", file: "PSYCH-EVAL" },
-    { num: "13", title: "school time Story", icon: "📖", file: "ARCHIVE-XII" },
-    { num: "14", title: "Summary of Persona", icon: "🎭", file: "PERSONA-CORE" },
-    { num: "15", title: "Future Possibilities", icon: "🔭", file: "FUTURES-PROJEX" },
-  ];
+      <!-- Euler Block -->
+      <div class="euler-block" id="euler-block">
+        <div class="euler-formula">e<sup style="font-size:0.6em">iπ</sup> + 1 = 0</div>
+        <div class="euler-caption">Euler's Identity — where entirely different worlds touch</div>
+      </div>
 
-  const messages = [
-    { heading: "ACCESS DENIED", body: " Mis Joshi You are not authorised to view this file. This section requires Level-5 clearance. Please contact the developer directly to obtain the necessary access token.", sub: "To request authorisation, contact the developer. Attempts to bypass this lock are recorded." },
-    { heading: "IP NOT ALLOWED", body: " Mis Joshi Your IP address has been flagged in our restricted registry. This content is locked to a whitelist of approved endpoints only. Your current session has been logged.", sub: "If you believe this is an error, submit an authorisation request to the developer with your verified credentials." },
-    { heading: "CLEARANCE REQUIRED", body: "This dossier section is sealed under Protocol OMEGA-7. No personnel below Clearance Level 9 may access this data. Your credentials do not meet the minimum threshold.", sub: "Contact the developer for a clearance upgrade. All failed access attempts trigger a silent alert." },
-    { heading: "SESSION BLOCKED", body: "Mis Joshi Your session token is not recognised by the secure gateway. Authentication failed at the third checkpoint. This incident has been reported.", sub: "Reach out to the developer to register your access credentials before proceeding." },
-    { heading: "RESTRICTED ZONE", body: "Mis Joshi You have attempted to enter a restricted zone within this intelligence archive. Unauthorised viewers are not permitted to proceed beyond this point.", sub: "Request authorisation from the developer. Your digital fingerprint has been captured." },
-  ];
+      <br/>
+      <p class="act-body">
+        There is a theorem in mathematics — one so strange and beautiful it makes 
+        seasoned mathematicians weep. It states that five utterly alien numbers, 
+        from five different mathematical universes, meet at a single, perfect point 
+        and dissolve into silence.
+      </p>
+      <br/><br/>
+      <p class="act-body">
+        <em>We were that equation.</em>
+      </p>
+      <br/><br/>
+      <p class="act-body">
+        Most of the time, I find myself unfit for conventional relationships — 
+        a solitary creature, by nature and by choice. But our alignment was 
+        a beautiful, rare anomaly against all mathematical odds. Two entirely 
+        different worlds, colliding perfectly for a fleeting moment, 
+        creating absolute peace.
+      </p>
+      <br/><br/>
+      <p class="act-body">
+        Not forever. Not required to be. 
+        <em>Perfect, precisely because it was finite.</em>
+      </p>
+    </div>
+  </section>
 
-  // ── RENDER MENU ──
-  const menu = document.getElementById('menu');
-  items.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'menu-card';
-    card.innerHTML = `
-      <div class="card-number">FILE — ${item.num}</div>
-      <div class="card-title">${item.title}</div>
-      <span class="card-lock">🔐</span>
-      <div class="card-bar"></div>
-    `;
-    card.addEventListener('click', () => openModal(item));
-    menu.appendChild(card);
-  });
+  <div style="height:50vh;"></div>
 
-  // ── MODAL ──
-  function openModal(item) {
-    const msg = messages[Math.floor(Math.random() * messages.length)];
-    document.getElementById('modal-icon').textContent = item.icon;
-    document.getElementById('modal-topic').textContent = `${item.file} // ${item.num}`;
+  <!-- ════════════════════════════════════════
+       ACT 3 — THE FOREVER GOODBYE
+  ════════════════════════════════════════ -->
+  <section id="photo-section">
+    <div id="photo-sticky">
+      <!-- Ambient glow -->
+      <div id="photo-bg-blur"></div>
 
-    const heading = document.getElementById('modal-heading');
-    heading.textContent = msg.heading;
-    heading.classList.remove('glitch-anim');
-    void heading.offsetWidth; // reflow
-    heading.classList.add('glitch-anim');
+      <div style="display:flex; flex-direction:column; align-items:center; gap:0; width:100%;">
+        <!-- Act label -->
+        <p id="act3-label" class="act-label" style="opacity:0; margin-bottom:2rem;">
+          Act III &nbsp;·&nbsp; The Forever Goodbye
+        </p>
 
-    document.getElementById('modal-body').textContent = msg.body;
-    document.getElementById('modal-sub').innerHTML = `<strong style="color:var(--gold)">FILE:</strong> ${item.title}<br/>${msg.sub}`;
+        <!-- Photo frame -->
+        <div id="photo-frame">
+          <img
+            id="main-photo"
+            src="image_4f34fb.jpg"
+            onerror="this.src='image_4f3520.jpg'; this.onerror=function(){this.style.display='none'; document.getElementById('photo-placeholder').style.display='flex';}"
+            alt="A moment preserved in time"
+          />
+          <!-- Fallback if no image -->
+          <div id="photo-placeholder" style="display:none; width:100%; height:100%; background:linear-gradient(135deg,#1a1410,#2a2018,#1a1410); border:1px solid rgba(201,168,76,0.2); align-items:center; justify-content:center; flex-direction:column; gap:1rem;">
+            <div style="font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.4em; color:rgba(201,168,76,0.4);">A MEMORY</div>
+            <div style="width:40px; height:1px; background:rgba(201,168,76,0.3);"></div>
+            <div style="font-family:'Cormorant Garamond',serif; font-size:0.9rem; font-style:italic; color:rgba(201,168,76,0.3); padding:0 2rem; text-align:center;">Place your photograph here</div>
+          </div>
+        </div>
 
-    document.getElementById('modal-overlay').classList.add('active');
-    scrambleIP();
-  }
+        <!-- Photo caption text -->
+        <div id="photo-overlay-text">
+          <p style="font-family:'Cormorant Garamond',serif; font-size:clamp(0.85rem,2vw,1rem); font-style:italic; color:rgba(201,168,76,0.6); letter-spacing:0.2em;">
+            The border has been crossed.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  function closeModal() {
-    document.getElementById('modal-overlay').classList.remove('active');
-  }
+  <!-- ════════════════════════════════════════
+       OUTRO — THE FINAL WORDS
+  ════════════════════════════════════════ -->
+  <section id="outro">
+    <div id="outro-inner">
+      <span class="act-label" style="margin-bottom:3rem; display:block;">
+        THE ROAD CONTINUES
+      </span>
+      <p class="final-quote">
+        "My role wasn't to walk the whole road with you; it was just 
+        to make sure you didn't stumble at the start."
+      </p>
+      <div class="divider" style="margin:3rem auto;"></div>
+      <p class="final-quote">
+        "Now you have your wings, and I must return to my own sky."
+      </p>
+      <div class="divider" style="margin:3rem auto;"></div>
+      <p class="final-quote" style="font-size:clamp(0.95rem,2.5vw,1.2rem); color:#b8b0a6;">
+        You were never lost. You were only waiting to be seen. 
+        And for a brief, irreplaceable season — I had the privilege of seeing you.
+      </p>
+      <p class="final-name">WITH LOVE &nbsp;·&nbsp; ALWAYS</p>
+    </div>
+  </section>
 
-  document.getElementById('modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('modal-overlay')) closeModal();
-  });
+  <!-- ════════════════════════════════════════
+       VOID — FINAL BLACK SILENCE
+  ════════════════════════════════════════ -->
+  <div id="void"></div>
 
-  // ── IP SCRAMBLE ──
-  const ipDisplay = document.getElementById('ip-display');
-  function scrambleIP() {
-    let count = 0;
-    const interval = setInterval(() => {
-      const fake = Array.from({length:4}, () => Math.floor(Math.random()*256)).join('.');
-      ipDisplay.textContent = fake;
-      count++;
-      if (count > 14) {
-        clearInterval(interval);
-        ipDisplay.textContent = '██.███.██.███ [MASKED]';
+  <!-- Bottom padding -->
+  <div style="height:50vh; background:#000; position:relative; z-index:20;"></div>
+
+
+  <!-- ════════════════════════════════════════
+       SCRIPTS
+  ════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+
+    // ── GSAP Registration ──
+    gsap.registerPlugin(ScrollTrigger);
+
+    // ── State ──
+    let audioLoaded = false;
+    let audioPlaying = false;
+    let sound = null;
+    let audioTriggered = false;
+    let loaderDone = false;
+
+    // ── Audio Setup (Howler) ──
+    // Placeholder URL — replace with your actual ambient track
+    // Suggested: host a royalty-free ambient instrumental (Max Richter / Johann Johannsson style)
+    const AUDIO_URL = 'https://cdn.pixabay.com/download/audio/2022/10/12/audio_6c740a49c4.mp3';
+
+    function initAudio() {
+      if (audioLoaded) return;
+      audioLoaded = true;
+      sound = new Howl({
+        src: [AUDIO_URL],
+        html5: true,
+        loop: true,
+        volume: 0,
+        onloaderror: function() { console.warn('Audio could not load. Continuing silently.'); }
+      });
+    }
+
+    function playAudioSwell() {
+      if (!sound || audioPlaying) return;
+      try {
+        sound.play();
+        sound.fade(0, 0.55, 4000);
+        audioPlaying = true;
+        updateAudioBtn(true);
+      } catch(e) {}
+    }
+
+    function updateAudioBtn(playing) {
+      const btn = document.getElementById('audioBtn');
+      btn.textContent = playing ? '♬' : '♪';
+    }
+
+    document.getElementById('audioBtn').addEventListener('click', function () {
+      initAudio();
+      if (!audioPlaying) {
+        playAudioSwell();
+      } else {
+        sound.pause();
+        audioPlaying = false;
+        updateAudioBtn(false);
       }
-    }, 80);
-  }
-  scrambleIP();
-  setInterval(scrambleIP, 12000);
+    });
 
-  // ── TYPING TITLE EFFECT (subtle) ──
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeModal();
-  });
-</script>
+    // ── Particle System ──
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animFrame;
+    let particlesActive = false;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function createParticles(count = 80) {
+      particles = [];
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.25,
+          vy: (Math.random() - 0.5) * 0.25 - 0.1,
+          r: Math.random() * 1.5 + 0.3,
+          alpha: Math.random() * 0.35 + 0.05,
+          pulse: Math.random() * Math.PI * 2,
+        });
+      }
+    }
+
+    function drawParticles() {
+      if (!particlesActive) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const now = Date.now() * 0.001;
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.pulse += 0.015;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        const a = p.alpha * (0.6 + 0.4 * Math.sin(p.pulse));
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(210, 190, 150, ${a})`;
+        ctx.fill();
+      });
+      animFrame = requestAnimationFrame(drawParticles);
+    }
+
+    function startParticles() {
+      if (particlesActive) return;
+      particlesActive = true;
+      createParticles(100);
+      drawParticles();
+    }
+
+    // ── Scroll Progress ──
+    function updateProgress() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      document.getElementById('progress').style.width = progress + '%';
+    }
+    window.addEventListener('scroll', updateProgress, { passive: true });
+
+    // ── Loader Out ──
+    function dismissLoader() {
+      const loader = document.getElementById('loader');
+      gsap.to(loader, {
+        opacity: 0, duration: 1.5, delay: 1.2, ease: 'power2.inOut',
+        onComplete: () => {
+          loader.style.display = 'none';
+          loaderDone = true;
+          revealTitle();
+        }
+      });
+    }
+
+    // ── Title Reveal ──
+    function revealTitle() {
+      const tl = gsap.timeline({ delay: 0.3 });
+      tl.to('#title-label', { opacity: 1, duration: 1.5, ease: 'power3.out' })
+        .to('#main-title', { opacity: 1, duration: 2, ease: 'power3.out' }, '-=0.8')
+        .to('#title-divider', { opacity: 0.5, duration: 1, ease: 'power2.out' }, '-=0.5')
+        .to('#title-sub', { opacity: 1, duration: 1.5, ease: 'power3.out' }, '-=0.5')
+        .to('#scroll-hint', { opacity: 1, duration: 1, ease: 'power2.out' }, '-=0.3');
+
+      // Pulse light
+      gsap.to('#pulseLight', { opacity: 0.6, duration: 3, delay: 1.8, ease: 'power2.out' });
+      // Particles
+      gsap.to('#particleCanvas', {
+        opacity: 1, duration: 3, delay: 2, ease: 'power2.out',
+        onStart: startParticles
+      });
+      // Audio button
+      gsap.to('#audioBtn', { opacity: 1, duration: 1.5, delay: 3, ease: 'power2.out' });
+      gsap.to('#audioBtn', { opacity: 1 }).then(() => {
+        document.getElementById('audioBtn').classList.add('visible');
+      });
+    }
+
+    // ── Eye Opening ──
+    ScrollTrigger.create({
+      trigger: '#act1',
+      start: 'top 90%',
+      once: true,
+      onEnter: () => {
+        gsap.to('#eye-top', { yPercent: -100, duration: 2.5, ease: 'expo.inOut' });
+        gsap.to('#eye-bottom', { yPercent: 100, duration: 2.5, ease: 'expo.inOut' });
+        gsap.to('#scroll-hint', { opacity: 0, duration: 0.5 });
+        // hide pulse light
+        gsap.to('#pulseLight', { opacity: 0, duration: 1.5, delay: 1 });
+        initAudio();
+      }
+    });
+
+    // ── ACT 1 Text Reveal ──
+    gsap.fromTo('#act1-inner',
+      { opacity: 0, y: 60 },
+      {
+        opacity: 1, y: 0, duration: 1.8, ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '#act1-inner',
+          start: 'top 75%',
+          once: true,
+        }
+      }
+    );
+
+    // ── ACT 2 Warm Background Transition ──
+    ScrollTrigger.create({
+      trigger: '#act2',
+      start: 'top 70%',
+      end: 'bottom 20%',
+      onEnter: () => {
+        gsap.to('#scene-warm-bg', { opacity: 1, duration: 3, ease: 'power2.inOut' });
+        gsap.to('#particleCanvas', { opacity: 0.4, duration: 2 });
+      },
+      onLeave: () => {
+        gsap.to('#scene-warm-bg', { opacity: 0.3, duration: 2 });
+      },
+      onEnterBack: () => {
+        gsap.to('#scene-warm-bg', { opacity: 1, duration: 2 });
+      },
+    });
+
+    // ── ACT 2 Text Reveal ──
+    gsap.fromTo('#act2-inner',
+      { opacity: 0, y: 50 },
+      {
+        opacity: 1, y: 0, duration: 1.8, ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '#act2-inner',
+          start: 'top 70%',
+          once: true,
+        }
+      }
+    );
+
+    // ── Euler Block Reveal ──
+    gsap.fromTo('#euler-block',
+      { opacity: 0, scale: 0.94 },
+      {
+        opacity: 1, scale: 1, duration: 2, ease: 'expo.out',
+        scrollTrigger: {
+          trigger: '#euler-block',
+          start: 'top 75%',
+          once: true,
+        }
+      }
+    );
+
+    // ── ACT 3 — Photo Focus Pull ──
+    ScrollTrigger.create({
+      trigger: '#photo-section',
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to('#act3-label', { opacity: 0.7, duration: 1.5, ease: 'power2.out' });
+        gsap.to('#photo-bg-blur', { opacity: 1, duration: 2, ease: 'power2.out' });
+        // Transition to final bg
+        gsap.to('#scene-warm-bg', { opacity: 0, duration: 2 });
+        gsap.to('#scene-final-bg', { opacity: 1, duration: 3 });
+        gsap.to('#particleCanvas', { opacity: 0.15, duration: 2 });
+      }
+    });
+
+    // Progressive blur removal + scale as user scrolls through photo section
+    gsap.to('#main-photo', {
+      filter: 'blur(0px) brightness(0.92)',
+      transform: 'scale(1)',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#photo-section',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1.5,
+        onUpdate: (self) => {
+          const prog = self.progress;
+          // Trigger audio at ~85% focus
+          if (prog >= 0.72 && !audioTriggered) {
+            audioTriggered = true;
+            initAudio();
+            playAudioSwell();
+            // Reveal photo overlay text
+            gsap.to('#photo-overlay-text', { opacity: 1, y: 10, duration: 1.5, ease: 'power2.out' });
+          }
+        }
+      }
+    });
+
+    // ── OUTRO Reveal ──
+    gsap.fromTo('#outro-inner',
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1, y: 0, duration: 2.2, ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '#outro',
+          start: 'top 65%',
+          once: true,
+        }
+      }
+    );
+
+    // ── Void Fade (final black out) ──
+    gsap.to(['#outro-inner', '#scene-final-bg', '#particleCanvas', '#grain'],
+      {
+        opacity: 0, duration: 1.5, ease: 'power2.inOut',
+        scrollTrigger: {
+          trigger: '#void',
+          start: 'top 60%',
+          once: true,
+          onEnter: () => {
+            if (sound && audioPlaying) {
+              sound.fade(0.55, 0, 6000);
+              setTimeout(() => { audioPlaying = false; updateAudioBtn(false); }, 6100);
+            }
+          }
+        }
+      }
+    );
+
+    // ── Dismiss Loader on page ready ──
+    if (document.readyState === 'complete') {
+      dismissLoader();
+    } else {
+      window.addEventListener('load', dismissLoader);
+    }
+
+  })();
+  </script>
 </body>
 </html>

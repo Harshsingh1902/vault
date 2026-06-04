@@ -431,9 +431,7 @@
    * Currently using a cinematic ambient fallback track.
    */
   const AUDIO_SRCS = [
-    'https://cdn.pixabay.com/download/audio/2024/02/28/audio_71e42d4d13.mp3',
-    'https://cdn.pixabay.com/download/audio/2022/11/22/audio_febc508520.mp3',
-    'https://cdn.pixabay.com/download/audio/2022/10/12/audio_6c740a49c4.mp3'
+    './WhatsApp Audio 2026-06-04 at 3.15.47 PM.mpeg'
   ];
 
   function initAudio(){
@@ -443,7 +441,7 @@
       html5: true,
       loop: true,
       volume: 0,
-      format: ['mp3'],
+      format: ['mpeg','mp3'],
       onload: function(){ console.log('Audio ready'); },
       onloaderror: function(id,err){ console.warn('Audio load error:',err); },
       onplayerror: function(id,err){

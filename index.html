@@ -479,9 +479,7 @@
     autoStarted = true;
     initAudio();
     /* Small delay so Howl has time to load */
-    setTimeout(function(){
-      if(!audioPlaying) playAudio();
-    }, 800);
+    if(!audioPlaying) playAudio();
     document.removeEventListener('scroll', autoStart);
     document.removeEventListener('touchstart', autoStart);
     document.removeEventListener('click', autoStart);
